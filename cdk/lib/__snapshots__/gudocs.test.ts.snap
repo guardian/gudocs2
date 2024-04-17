@@ -70,6 +70,10 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
             "Value": "TEST",
           },
           {
+            "Key": "gu:repo",
+            "Value": "guardian/gudocs2",
+          },
+          {
             "Key": "Stack",
             "Value": "playground",
           },
@@ -132,6 +136,10 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
             "Value": "TEST",
           },
           {
+            "Key": "gu:repo",
+            "Value": "guardian/gudocs2",
+          },
+          {
             "Key": "Stack",
             "Value": "playground",
           },
@@ -144,7 +152,7 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Retain",
     },
-    "RestApiDeployment180EC50330670ca54bda8a1ee4d2106d5c8af15c": {
+    "RestApiDeployment180EC503d641cc4ca34b723ccc9f535ae696a278": {
       "DependsOn": [
         "RestApidocumentsGETAB791FA6",
         "RestApidocumentsA82097B4",
@@ -165,7 +173,7 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
       ],
       "Properties": {
         "DeploymentId": {
-          "Ref": "RestApiDeployment180EC50330670ca54bda8a1ee4d2106d5c8af15c",
+          "Ref": "RestApiDeployment180EC503d641cc4ca34b723ccc9f535ae696a278",
         },
         "RestApiId": {
           "Ref": "RestApi0C43BF4B",
@@ -175,6 +183,10 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
           {
             "Key": "gu:cdk:version",
             "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/gudocs2",
           },
           {
             "Key": "Stack",
@@ -494,6 +506,10 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
             "Value": "TEST",
           },
           {
+            "Key": "gu:repo",
+            "Value": "guardian/gudocs2",
+          },
+          {
             "Key": "Stack",
             "Value": "playground",
           },
@@ -537,6 +553,10 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
           {
             "Key": "gu:cdk:version",
             "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/gudocs2",
           },
           {
             "Key": "Stack",
@@ -601,6 +621,10 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
           {
             "Key": "gu:cdk:version",
             "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/gudocs2",
           },
           {
             "Key": "Stack",
@@ -753,6 +777,10 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
             "Value": "TEST",
           },
           {
+            "Key": "gu:repo",
+            "Value": "guardian/gudocs2",
+          },
+          {
             "Key": "Stack",
             "Value": "playground",
           },
@@ -796,6 +824,10 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
           {
             "Key": "gu:cdk:version",
             "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/gudocs2",
           },
           {
             "Key": "Stack",
@@ -860,6 +892,10 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
           {
             "Key": "gu:cdk:version",
             "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/gudocs2",
           },
           {
             "Key": "Stack",
@@ -1050,6 +1086,10 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
             "Value": "TEST",
           },
           {
+            "Key": "gu:repo",
+            "Value": "guardian/gudocs2",
+          },
+          {
             "Key": "Stack",
             "Value": "playground",
           },
@@ -1093,6 +1133,10 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
           {
             "Key": "gu:cdk:version",
             "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/gudocs2",
           },
           {
             "Key": "Stack",
@@ -1157,6 +1201,10 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
           {
             "Key": "gu:cdk:version",
             "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/gudocs2",
           },
           {
             "Key": "Stack",
