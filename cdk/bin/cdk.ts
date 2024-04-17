@@ -1,6 +1,6 @@
 import 'source-map-support/register';
-import { GuDocs } from '../lib/gudocs';
 import { GuRoot } from '@guardian/cdk/lib/constructs/root'
+import { GuDocs } from '../lib/gudocs';
 
 const app = new GuRoot();
 
