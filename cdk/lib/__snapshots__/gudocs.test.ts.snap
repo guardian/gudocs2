@@ -1,0 +1,1275 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
+{
+  "Metadata": {
+    "gu:cdk:constructs": [
+      "GuDocs",
+      "GuVpcParameter",
+      "GuSubnetListParameter",
+      "GuDistributionBucketParameter",
+      "GuLambdaFunction",
+      "GuLambdaFunction",
+      "GuApiGatewayWithLambdaByPath",
+      "GuScheduledLambda",
+    ],
+    "gu:cdk:version": "TEST",
+  },
+  "Outputs": {
+    "RestApiEndpoint0551178A": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "https://",
+            {
+              "Ref": "RestApi0C43BF4B",
+            },
+            ".execute-api.",
+            {
+              "Ref": "AWS::Region",
+            },
+            ".",
+            {
+              "Ref": "AWS::URLSuffix",
+            },
+            "/",
+            {
+              "Ref": "RestApiDeploymentStageprod3855DE66",
+            },
+            "/",
+          ],
+        ],
+      },
+    },
+  },
+  "Parameters": {
+    "DistributionBucketName": {
+      "Default": "/account/services/artifact.bucket",
+      "Description": "SSM parameter containing the S3 bucket name holding distribution artifacts",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+    "PrivateSubnets": {
+      "Default": "/account/vpc/primary/subnets/private",
+      "Description": "A list of private subnets",
+      "Type": "AWS::SSM::Parameter::Value<List<AWS::EC2::Subnet::Id>>",
+    },
+    "VpcId": {
+      "Default": "/account/vpc/primary/id",
+      "Description": "Virtual Private Cloud to run EC2 instances within. Should NOT be the account default VPC.",
+      "Type": "AWS::SSM::Parameter::Value<AWS::EC2::VPC::Id>",
+    },
+  },
+  "Resources": {
+    "RestApi0C43BF4B": {
+      "Properties": {
+        "Name": "playground-TEST-testing",
+        "Tags": [
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "Stack",
+            "Value": "playground",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::ApiGateway::RestApi",
+    },
+    "RestApiAccount7C83CF5A": {
+      "DeletionPolicy": "Retain",
+      "DependsOn": [
+        "RestApi0C43BF4B",
+      ],
+      "Properties": {
+        "CloudWatchRoleArn": {
+          "Fn::GetAtt": [
+            "RestApiCloudWatchRoleE3ED6605",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::ApiGateway::Account",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "RestApiCloudWatchRoleE3ED6605": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "apigateway.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+            ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "Stack",
+            "Value": "playground",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "RestApiDeployment180EC50330670ca54bda8a1ee4d2106d5c8af15c": {
+      "DependsOn": [
+        "RestApidocumentsGETAB791FA6",
+        "RestApidocumentsA82097B4",
+        "RestApipublishPOST47D1FC78",
+        "RestApipublishEFC5B6CE",
+      ],
+      "Properties": {
+        "Description": "Automatically created by the RestApi construct",
+        "RestApiId": {
+          "Ref": "RestApi0C43BF4B",
+        },
+      },
+      "Type": "AWS::ApiGateway::Deployment",
+    },
+    "RestApiDeploymentStageprod3855DE66": {
+      "DependsOn": [
+        "RestApiAccount7C83CF5A",
+      ],
+      "Properties": {
+        "DeploymentId": {
+          "Ref": "RestApiDeployment180EC50330670ca54bda8a1ee4d2106d5c8af15c",
+        },
+        "RestApiId": {
+          "Ref": "RestApi0C43BF4B",
+        },
+        "StageName": "prod",
+        "Tags": [
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "Stack",
+            "Value": "playground",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::ApiGateway::Stage",
+    },
+    "RestApidocumentsA82097B4": {
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "RestApi0C43BF4B",
+            "RootResourceId",
+          ],
+        },
+        "PathPart": "documents",
+        "RestApiId": {
+          "Ref": "RestApi0C43BF4B",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "RestApidocumentsGETAB791FA6": {
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "GET",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "getdocuments9A27C21A",
+                    "Arn",
+                  ],
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "RestApidocumentsA82097B4",
+        },
+        "RestApiId": {
+          "Ref": "RestApi0C43BF4B",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "RestApidocumentsGETApiPermissionGuDocsAPIRestApi65AC27F3GETdocuments096FC7F4": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "getdocuments9A27C21A",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "RestApi0C43BF4B",
+              },
+              "/",
+              {
+                "Ref": "RestApiDeploymentStageprod3855DE66",
+              },
+              "/GET/documents",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "RestApidocumentsGETApiPermissionTestGuDocsAPIRestApi65AC27F3GETdocuments4A184B29": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "getdocuments9A27C21A",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "RestApi0C43BF4B",
+              },
+              "/test-invoke-stage/GET/documents",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "RestApipublishEFC5B6CE": {
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "RestApi0C43BF4B",
+            "RootResourceId",
+          ],
+        },
+        "PathPart": "publish",
+        "RestApiId": {
+          "Ref": "RestApi0C43BF4B",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "RestApipublishPOST47D1FC78": {
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "POST",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "publish98FFDE07",
+                    "Arn",
+                  ],
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "RestApipublishEFC5B6CE",
+        },
+        "RestApiId": {
+          "Ref": "RestApi0C43BF4B",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "RestApipublishPOSTApiPermissionGuDocsAPIRestApi65AC27F3POSTpublishB24E9366": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "publish98FFDE07",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "RestApi0C43BF4B",
+              },
+              "/",
+              {
+                "Ref": "RestApiDeploymentStageprod3855DE66",
+              },
+              "/POST/publish",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "RestApipublishPOSTApiPermissionTestGuDocsAPIRestApi65AC27F3POSTpublishEC43F890": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "publish98FFDE07",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "RestApi0C43BF4B",
+              },
+              "/test-invoke-stage/POST/publish",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "getdocuments9A27C21A": {
+      "DependsOn": [
+        "getdocumentsServiceRoleDefaultPolicy49C8A0ED",
+        "getdocumentsServiceRole2797EAB0",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "DistributionBucketName",
+          },
+          "S3Key": "playground/TEST/gudocs-get-documents/index.js",
+        },
+        "Environment": {
+          "Variables": {
+            "APP": "gudocs-get-documents",
+            "STACK": "playground",
+            "STAGE": "TEST",
+            "Stage": "TEST",
+          },
+        },
+        "FunctionName": "gudocs-get-document-TEST",
+        "Handler": "dist/lambda/index.getDocuments",
+        "MemorySize": 512,
+        "Role": {
+          "Fn::GetAtt": [
+            "getdocumentsServiceRole2797EAB0",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs18.x",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "gudocs-get-documents",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "Stack",
+            "Value": "playground",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Timeout": 30,
+        "VpcConfig": {
+          "SecurityGroupIds": [
+            {
+              "Fn::GetAtt": [
+                "getdocumentsSecurityGroupB171355D",
+                "GroupId",
+              ],
+            },
+          ],
+          "SubnetIds": {
+            "Ref": "PrivateSubnets",
+          },
+        },
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "getdocumentsSecurityGroupB171355D": {
+      "Properties": {
+        "GroupDescription": "Automatic security group for Lambda Function GuDocsAPIgetdocumentsB2FB3696",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1",
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "gudocs-get-documents",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "Stack",
+            "Value": "playground",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "VpcId": {
+          "Ref": "VpcId",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "getdocumentsServiceRole2797EAB0": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
+              ],
+            ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "gudocs-get-documents",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "Stack",
+            "Value": "playground",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "getdocumentsServiceRoleDefaultPolicy49C8A0ED": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "DistributionBucketName",
+                      },
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "DistributionBucketName",
+                      },
+                      "/playground/TEST/gudocs-get-documents/index.js",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": "ssm:GetParametersByPath",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:ssm:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/TEST/playground/gudocs-get-documents",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": [
+                "ssm:GetParameters",
+                "ssm:GetParameter",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:ssm:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/TEST/playground/gudocs-get-documents/*",
+                  ],
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "getdocumentsServiceRoleDefaultPolicy49C8A0ED",
+        "Roles": [
+          {
+            "Ref": "getdocumentsServiceRole2797EAB0",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "gudocs860B986D": {
+      "DependsOn": [
+        "gudocsServiceRoleDefaultPolicyE352211E",
+        "gudocsServiceRole57A31E68",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "DistributionBucketName",
+          },
+          "S3Key": "playground/TEST/gudocs-schedule/index.js",
+        },
+        "Environment": {
+          "Variables": {
+            "APP": "gudocs-schedule",
+            "STACK": "playground",
+            "STAGE": "TEST",
+            "Stage": "TEST",
+          },
+        },
+        "Handler": "dist/lambda/index.scheduleHandler",
+        "MemorySize": 512,
+        "Role": {
+          "Fn::GetAtt": [
+            "gudocsServiceRole57A31E68",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs18.x",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "gudocs-schedule",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "Stack",
+            "Value": "playground",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Timeout": 30,
+        "VpcConfig": {
+          "SecurityGroupIds": [
+            {
+              "Fn::GetAtt": [
+                "gudocsSecurityGroupA1732EC1",
+                "GroupId",
+              ],
+            },
+          ],
+          "SubnetIds": {
+            "Ref": "PrivateSubnets",
+          },
+        },
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "gudocsSecurityGroupA1732EC1": {
+      "Properties": {
+        "GroupDescription": "Automatic security group for Lambda Function GuDocsAPIgudocs86D0A25F",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1",
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "gudocs-schedule",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "Stack",
+            "Value": "playground",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "VpcId": {
+          "Ref": "VpcId",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "gudocsServiceRole57A31E68": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
+              ],
+            ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "gudocs-schedule",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "Stack",
+            "Value": "playground",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "gudocsServiceRoleDefaultPolicyE352211E": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "DistributionBucketName",
+                      },
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "DistributionBucketName",
+                      },
+                      "/playground/TEST/gudocs-schedule/index.js",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": "ssm:GetParametersByPath",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:ssm:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/TEST/playground/gudocs-schedule",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": [
+                "ssm:GetParameters",
+                "ssm:GetParameter",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:ssm:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/TEST/playground/gudocs-schedule/*",
+                  ],
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "gudocsServiceRoleDefaultPolicyE352211E",
+        "Roles": [
+          {
+            "Ref": "gudocsServiceRole57A31E68",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "gudocsgudocscron001020AllowEventRuleGuDocsAPIgudocs86D0A25FF1B79F30": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "gudocs860B986D",
+            "Arn",
+          ],
+        },
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {
+          "Fn::GetAtt": [
+            "gudocsgudocscron001020C113ADFA",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "gudocsgudocscron001020C113ADFA": {
+      "Properties": {
+        "ScheduleExpression": "cron(00 10 ? * 2 *)",
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "gudocs860B986D",
+                "Arn",
+              ],
+            },
+            "Id": "Target0",
+          },
+        ],
+      },
+      "Type": "AWS::Events::Rule",
+    },
+    "publish98FFDE07": {
+      "DependsOn": [
+        "publishServiceRoleDefaultPolicy1754110B",
+        "publishServiceRoleD6DF777D",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "DistributionBucketName",
+          },
+          "S3Key": "playground/TEST/gudocs-publish/index.js",
+        },
+        "Environment": {
+          "Variables": {
+            "APP": "gudocs-publish",
+            "STACK": "playground",
+            "STAGE": "TEST",
+            "Stage": "TEST",
+          },
+        },
+        "FunctionName": "gudocs-publish-TEST",
+        "Handler": "dist/lambda/index.publishHandler",
+        "MemorySize": 512,
+        "Role": {
+          "Fn::GetAtt": [
+            "publishServiceRoleD6DF777D",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs18.x",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "gudocs-publish",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "Stack",
+            "Value": "playground",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Timeout": 30,
+        "VpcConfig": {
+          "SecurityGroupIds": [
+            {
+              "Fn::GetAtt": [
+                "publishSecurityGroup789308B0",
+                "GroupId",
+              ],
+            },
+          ],
+          "SubnetIds": {
+            "Ref": "PrivateSubnets",
+          },
+        },
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "publishSecurityGroup789308B0": {
+      "Properties": {
+        "GroupDescription": "Automatic security group for Lambda Function GuDocsAPIpublish8185B65F",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1",
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "gudocs-publish",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "Stack",
+            "Value": "playground",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "VpcId": {
+          "Ref": "VpcId",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "publishServiceRoleD6DF777D": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
+              ],
+            ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "gudocs-publish",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "Stack",
+            "Value": "playground",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "publishServiceRoleDefaultPolicy1754110B": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "DistributionBucketName",
+                      },
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "DistributionBucketName",
+                      },
+                      "/playground/TEST/gudocs-publish/index.js",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": "ssm:GetParametersByPath",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:ssm:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/TEST/playground/gudocs-publish",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": [
+                "ssm:GetParameters",
+                "ssm:GetParameter",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:ssm:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/TEST/playground/gudocs-publish/*",
+                  ],
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "publishServiceRoleDefaultPolicy1754110B",
+        "Roles": [
+          {
+            "Ref": "publishServiceRoleD6DF777D",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+  },
+}
+`;
