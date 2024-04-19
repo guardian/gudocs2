@@ -476,7 +476,7 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
           "S3Bucket": {
             "Ref": "DistributionBucketName",
           },
-          "S3Key": "playground/TEST/gudocs-get-documents/index.js",
+          "S3Key": "playground/TEST/gudocs-get-documents/gudocs2.zip",
         },
         "Environment": {
           "Variables": {
@@ -677,7 +677,7 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
                       {
                         "Ref": "DistributionBucketName",
                       },
-                      "/playground/TEST/gudocs-get-documents/index.js",
+                      "/playground/TEST/gudocs-get-documents/gudocs2.zip",
                     ],
                   ],
                 },
@@ -748,7 +748,7 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
           "S3Bucket": {
             "Ref": "DistributionBucketName",
           },
-          "S3Key": "playground/TEST/gudocs-schedule/index.js",
+          "S3Key": "playground/TEST/gudocs-schedule/gudocs2.zip",
         },
         "Environment": {
           "Variables": {
@@ -948,7 +948,7 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
                       {
                         "Ref": "DistributionBucketName",
                       },
-                      "/playground/TEST/gudocs-schedule/index.js",
+                      "/playground/TEST/gudocs-schedule/gudocs2.zip",
                     ],
                   ],
                 },
@@ -1056,7 +1056,7 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
           "S3Bucket": {
             "Ref": "DistributionBucketName",
           },
-          "S3Key": "playground/TEST/gudocs-publish/index.js",
+          "S3Key": "playground/TEST/gudocs-publish/gudocs2.zip",
         },
         "Environment": {
           "Variables": {
@@ -1257,7 +1257,7 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
                       {
                         "Ref": "DistributionBucketName",
                       },
-                      "/playground/TEST/gudocs-publish/index.js",
+                      "/playground/TEST/gudocs-publish/gudocs2.zip",
                     ],
                   ],
                 },
