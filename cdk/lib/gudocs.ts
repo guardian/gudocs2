@@ -102,6 +102,19 @@ export class GuDocs extends GuStack {
 				type: AttributeType.STRING,
 			},
 		});
+
+		table.addGlobalSecondaryIndex({
+			indexName: 'last-modified',
+			partitionKey: {
+				name: 'type',
+				type: AttributeType.STRING,
+			},
+			sortKey: {
+				name: 'lastModified',
+				type: AttributeType.NUMBER,
+			}
+		});
+
 		table.grantReadWriteData(scheduledLambda);
 		table.grantReadWriteData(publishLambda);
 		table.grantReadData(getDocumentsLambda);

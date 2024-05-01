@@ -474,6 +474,36 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
             "AttributeName": "key",
             "AttributeType": "S",
           },
+          {
+            "AttributeName": "type",
+            "AttributeType": "S",
+          },
+          {
+            "AttributeName": "lastModified",
+            "AttributeType": "N",
+          },
+        ],
+        "GlobalSecondaryIndexes": [
+          {
+            "IndexName": "last-modified",
+            "KeySchema": [
+              {
+                "AttributeName": "type",
+                "KeyType": "HASH",
+              },
+              {
+                "AttributeName": "lastModified",
+                "KeyType": "RANGE",
+              },
+            ],
+            "Projection": {
+              "ProjectionType": "ALL",
+            },
+            "ProvisionedThroughput": {
+              "ReadCapacityUnits": 5,
+              "WriteCapacityUnits": 5,
+            },
+          },
         ],
         "KeySchema": [
           {
@@ -792,7 +822,18 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
                   ],
                 },
                 {
-                  "Ref": "AWS::NoValue",
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "TableCD117FA1",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
                 },
               ],
             },
@@ -1096,7 +1137,18 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
                   ],
                 },
                 {
-                  "Ref": "AWS::NoValue",
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "TableCD117FA1",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
                 },
               ],
             },
@@ -1438,7 +1490,18 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
                   ],
                 },
                 {
-                  "Ref": "AWS::NoValue",
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "TableCD117FA1",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
                 },
               ],
             },
