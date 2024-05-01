@@ -4,10 +4,10 @@ import { GuStack } from '@guardian/cdk/lib/constructs/core';
 import { GuVpc } from '@guardian/cdk/lib/constructs/ec2/vpc'
 import { GuLambdaFunction } from '@guardian/cdk/lib/constructs/lambda';
 import type { App } from 'aws-cdk-lib';
+import {AttributeType, Table} from "aws-cdk-lib/aws-dynamodb";
 import { Schedule } from 'aws-cdk-lib/aws-events';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
-import {AttributeType, Table} from "aws-cdk-lib/aws-dynamodb";
 
 
 const APP_NAME = 'gudocs';
@@ -50,7 +50,7 @@ export class GuDocs extends GuStack {
 		const sharedParametersPolicy = new PolicyStatement({
 			actions: ["ssm:GetParametersByPath"],
 			resources: [
-			`arn:aws:ssm:${scope.region}:${scope.account}:parameter/${this.stage}/${this.stack}/${app}/*`,
+			`arn:aws:ssm:${this.region}:${this.account}:parameter/${this.stage}/${this.stack}/${app}/*`,
 			],
 		})
 		getDocumentsLambda.addToRolePolicy(sharedParametersPolicy)
