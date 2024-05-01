@@ -7,6 +7,7 @@ const LOCAL_PROFILE = "interactives";
 export const IS_RUNNING_LOCALLY = !process.env.LAMBDA_TASK_ROOT;
 
 export const STAGE = process.env.STAGE || "DEV";
+export const STACK = process.env.STACK || "interactives";
 
 export const standardAwsConfig = {
   region: AWS_REGION,
@@ -19,7 +20,7 @@ const ssm = new SSM(standardAwsConfig);
 
 const paramStorePromiseGetter =
   (WithDecryption: boolean) => (nameSuffix: string) => {
-    const Name = `/${APP}/${nameSuffix}`;
+    const Name = `/${STAGE}/${STACK}/${APP}/${nameSuffix}`;
     return ssm
       .getParameter({
         Name,

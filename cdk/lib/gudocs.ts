@@ -5,6 +5,7 @@ import { GuVpc } from '@guardian/cdk/lib/constructs/ec2/vpc'
 import { GuLambdaFunction } from '@guardian/cdk/lib/constructs/lambda';
 import type { App } from 'aws-cdk-lib';
 import { Schedule } from 'aws-cdk-lib/aws-events';
+import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 
 
@@ -45,12 +46,22 @@ export class GuDocs extends GuStack {
 			...sharedLambdaProps,			
 		});
 
+		const sharedParametersPolicy = new PolicyStatement({
+			actions: ["ssm:GetParametersByPath"],
+			resources: [
+			`arn:aws:ssm:${scope.region}:${scope.account}:parameter/${this.stage}/${this.stack}/${app}/*`,
+			],
+		})
+		getDocumentsLambda.addToRolePolicy(sharedParametersPolicy)
+
 		const publishLambda = new GuLambdaFunction(this, "publish", {
 			handler: "dist/lambda/index.publishHandler",
 			functionName: `gudocs-publish-${this.stage}`,
 			app: `${app}-publish`,
 			...sharedLambdaProps,
 		});
+
+		publishLambda.addToRolePolicy(sharedParametersPolicy)
 
 		new GuApiGatewayWithLambdaByPath(this, {
 			app: "testing",
@@ -69,7 +80,7 @@ export class GuDocs extends GuStack {
 			],
 		});
 	
-		new GuScheduledLambda(this, APP_NAME, {
+		const scheduledLambda = new GuScheduledLambda(this, APP_NAME, { // NB this lambs is called interactives-CODE-gu-docs-gudocs860B986D-SIKViKuP8A6S it would be nice for it to have a better name
 			handler: 'dist/lambda/index.scheduleHandler',
 			rules: [
 				{
@@ -82,5 +93,6 @@ export class GuDocs extends GuStack {
 			app: `${app}-schedule`,
 			...sharedLambdaProps,
 		});
+		scheduledLambda.addToRolePolicy(sharedParametersPolicy)
 	}
 }
