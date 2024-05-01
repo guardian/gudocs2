@@ -7,6 +7,7 @@ import type { App } from 'aws-cdk-lib';
 import { Schedule } from 'aws-cdk-lib/aws-events';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
+import {AttributeType, Table} from "aws-cdk-lib/aws-dynamodb";
 
 
 const APP_NAME = 'gudocs';
@@ -94,5 +95,15 @@ export class GuDocs extends GuStack {
 			...sharedLambdaProps,
 		});
 		scheduledLambda.addToRolePolicy(sharedParametersPolicy)
+
+		const table = new Table(this, 'Table', {
+			partitionKey: {
+				name: 'key',
+				type: AttributeType.STRING,
+			},
+		});
+		table.grantReadWriteData(scheduledLambda);
+		table.grantReadWriteData(publishLambda);
+		table.grantReadData(getDocumentsLambda);
 	}
 }

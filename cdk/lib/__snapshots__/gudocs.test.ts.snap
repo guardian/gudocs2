@@ -466,6 +466,47 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
       },
       "Type": "AWS::Lambda::Permission",
     },
+    "TableCD117FA1": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "key",
+            "AttributeType": "S",
+          },
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "key",
+            "KeyType": "HASH",
+          },
+        ],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 5,
+          "WriteCapacityUnits": 5,
+        },
+        "Tags": [
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/gudocs2",
+          },
+          {
+            "Key": "Stack",
+            "Value": "playground",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::DynamoDB::Table",
+      "UpdateReplacePolicy": "Retain",
+    },
     "getdocuments9A27C21A": {
       "DependsOn": [
         "getdocumentsServiceRoleDefaultPolicy49C8A0ED",
@@ -730,6 +771,30 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
               "Action": "ssm:GetParametersByPath",
               "Effect": "Allow",
               "Resource": "arn:aws:ssm:undefined:undefined:parameter/TEST/playground/gudocs/*",
+            },
+            {
+              "Action": [
+                "dynamodb:BatchGetItem",
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
+                "dynamodb:Query",
+                "dynamodb:GetItem",
+                "dynamodb:Scan",
+                "dynamodb:ConditionCheckItem",
+                "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "TableCD117FA1",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Ref": "AWS::NoValue",
+                },
+              ],
             },
           ],
           "Version": "2012-10-17",
@@ -1006,6 +1071,34 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
               "Action": "ssm:GetParametersByPath",
               "Effect": "Allow",
               "Resource": "arn:aws:ssm:undefined:undefined:parameter/TEST/playground/gudocs/*",
+            },
+            {
+              "Action": [
+                "dynamodb:BatchGetItem",
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
+                "dynamodb:Query",
+                "dynamodb:GetItem",
+                "dynamodb:Scan",
+                "dynamodb:ConditionCheckItem",
+                "dynamodb:BatchWriteItem",
+                "dynamodb:PutItem",
+                "dynamodb:UpdateItem",
+                "dynamodb:DeleteItem",
+                "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "TableCD117FA1",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Ref": "AWS::NoValue",
+                },
+              ],
             },
           ],
           "Version": "2012-10-17",
@@ -1320,6 +1413,34 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
               "Action": "ssm:GetParametersByPath",
               "Effect": "Allow",
               "Resource": "arn:aws:ssm:undefined:undefined:parameter/TEST/playground/gudocs/*",
+            },
+            {
+              "Action": [
+                "dynamodb:BatchGetItem",
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
+                "dynamodb:Query",
+                "dynamodb:GetItem",
+                "dynamodb:Scan",
+                "dynamodb:ConditionCheckItem",
+                "dynamodb:BatchWriteItem",
+                "dynamodb:PutItem",
+                "dynamodb:UpdateItem",
+                "dynamodb:DeleteItem",
+                "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "TableCD117FA1",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Ref": "AWS::NoValue",
+                },
+              ],
             },
           ],
           "Version": "2012-10-17",
