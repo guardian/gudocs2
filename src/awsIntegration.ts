@@ -1,13 +1,10 @@
 import { SSM } from "@aws-sdk/client-ssm";
 import { fromIni, fromNodeProviderChain } from "@aws-sdk/credential-providers";
-import { APP, AWS_REGION } from "./constants";
+import { APP, STAGE, STACK, AWS_REGION } from "./constants";
 
 const LOCAL_PROFILE = "interactives";
 
 export const IS_RUNNING_LOCALLY = !process.env.LAMBDA_TASK_ROOT;
-
-export const STAGE = process.env.STAGE || "DEV";
-export const STACK = process.env.STACK || "interactives";
 
 export const standardAwsConfig = {
   region: AWS_REGION,

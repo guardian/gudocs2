@@ -515,6 +515,7 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
           "ReadCapacityUnits": 5,
           "WriteCapacityUnits": 5,
         },
+        "TableName": "playground-TEST-gudocs",
         "Tags": [
           {
             "Key": "gu:cdk:version",

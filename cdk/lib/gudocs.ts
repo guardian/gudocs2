@@ -97,6 +97,7 @@ export class GuDocs extends GuStack {
 		scheduledLambda.addToRolePolicy(sharedParametersPolicy)
 
 		const table = new Table(this, 'Table', {
+			tableName: `${this.stack}-${this.stage}-${app}`,
 			partitionKey: {
 				name: 'key',
 				type: AttributeType.STRING,
