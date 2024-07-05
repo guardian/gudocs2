@@ -1,6 +1,6 @@
 import serverlessExpress from '@codegenie/serverless-express';
 import { default as express } from "express";
-import { doSchedule, readDocuments } from './index';
+import { doSchedule, readDocuments, renderDashboard } from './index';
 import { index } from './templates/index';
 import { renderToString } from 'react-dom/server';
 import { style } from './templates/style';
@@ -15,8 +15,8 @@ server.get("/documents", (_, response) => {
 });
 
 server.get("/", (_, response) => {
-    readDocuments(undefined, undefined).then((r) => {
-        response.send(renderToString(index(style, "lastSaved", "email", r.files))); // todo: lastSaved and Email
+    renderDashboard().then((r) => {
+        response.send(r);
     })
 });
 

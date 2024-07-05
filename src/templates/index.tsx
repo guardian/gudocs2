@@ -1,7 +1,7 @@
 import React from 'react';
 import { DocumentInfo } from '..';
 
-export const index = (css: string, lastSaved: string, email: string, files: Array<DocumentInfo>) => <html>
+export const index = (css: string, lastSaved: string, email: string, domainPermissions: string, files: Array<DocumentInfo>) => <html>
 <head>
 	<title>Guardian Visuals - docs</title>
 	<style type="text/css">{ css }</style>
@@ -65,8 +65,9 @@ export const index = (css: string, lastSaved: string, email: string, files: Arra
 					<th>Title</th>
 					<th>Last Modified</th>
 					<th>By</th>
-					<th>@</th>
+					<th>@{ domainPermissions }</th>
 					<th>Links</th>
+					<th></th>
 				</tr>
 			</thead>
 

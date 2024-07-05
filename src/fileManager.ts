@@ -1,4 +1,4 @@
-import { Config, FileJSON, GuFile, deserialize } from './guFile'
+import { Config, FileJSON, GuFile, deserialize, fetchDomainPermissions } from './guFile'
 import { drive_v2 } from 'googleapis'
 import * as drive from './drive'
 import { JWT } from 'google-auth-library'
@@ -157,12 +157,19 @@ export async function update({fetchAll = false, fileIds = [], prod = false}: { f
             });
     });
 
+    const withDomainPermissions = await Promise.all(guFiles.map((fileJson) =>
+        fetchDomainPermissions(fileJson, auth, config.require_domain_permissions, config.client_email).then((perm) => ({
+            ...fileJson,
+            domainPermissions: perm,
+        }))
+    ))
+
     const fails = (await Promise.all(promises)).filter(notEmpty);
     if (fails.length > 0) {
         console.error('The following updates failed');
         fails.forEach(fail => console.error(`\t${fail.metaData.id} ${fail.metaData.title}`));
     }
     console.log("Storing file metadata")
-    return await saveGuFiles(guFiles);
+    return await saveGuFiles(withDomainPermissions);
 }
 //}

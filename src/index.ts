@@ -95,6 +95,13 @@ interface Response {
 	files: Array<DocumentInfo>;
 }
 
+export async function renderDashboard() {
+	const config = await getConfig();
+	const state = await getStateDb();
+	const r = await readDocuments(undefined, undefined);
+	return renderToString(index(style, state.lastSaved.toISOString(), config.client_email, config.require_domain_permissions, r.files));
+}
+
 export async function readDocuments(lastModified: number | undefined, dev: string | undefined): Promise<Response> {
 	const state = await getStateDb();
 	const filesResponse = await getAllGuFiles(lastModified)

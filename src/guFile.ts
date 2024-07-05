@@ -54,6 +54,19 @@ export function s3Url(file: FileJSON, s3domain: string, testFolder: string) {
     return `${s3domain}/${testFolder}/${file.metaData.id || ""}.json`
 }
 
+export async function fetchDomainPermissions(file: FileJSON, auth: JWT, requiredDomain: string, client_email: string): Promise<string> {
+    const perms = await drive.fetchFilePermissions(file.metaData.id || "", auth);
+    const domainPermission = (perms.data.items || []).find(i => i.name === requiredDomain)
+    console.log(JSON.stringify(perms));
+    if (domainPermission && domainPermission.role) {
+        return domainPermission.role;
+    } else if((perms.data.items || []).find(i => i.emailAddress === client_email)) {
+        return 'none';
+    } else {
+        return 'unknown';
+    }
+}
+
 export abstract class GuFile {
     metaData: drive_v2.Schema$File;
     lastUploadTest: unknown;
@@ -105,28 +118,10 @@ export abstract class GuFile {
         else return s.replace(/http:\/\//g, 'https://');
     }
 
-    async fetchDomainPermissions(): Promise<string> {
-        var configuredRequireDomainPermissions = this.config.require_domain_permissions;
-        if (configuredRequireDomainPermissions) {
-            var perms = await drive.fetchFilePermissions(this.id, this.auth);
-            var domainPermission = (perms.data.items || []).find(i => i.name === configuredRequireDomainPermissions)
-            if (domainPermission && domainPermission.role) {
-                return domainPermission.role;
-            } else if((perms.data.items || []).find(i => i.emailAddress === this.config.client_email)) {
-                return 'none';
-            } else {
-                return 'unknown';
-            }
-        } else {
-            return 'disabled';
-        }
-    }
-
     async update(publish: Boolean) {
         console.log(`Updating ${this.id} ${this.title} (${this.metaData.mimeType})`);
 
         var body = await this.fetchFileJSON();
-        this.domainPermissions = await this.fetchDomainPermissions();
 
         console.log(`Uploading ${this.id} ${this.title} (${this.metaData.mimeType}) to S3`);
         const p = this.uploadToS3(body, false);
@@ -154,16 +149,17 @@ export abstract class GuFile {
             CacheControl: prod ? 'max-age=30' : 'max-age=5'
         });
         
-        try {
-            return s3Client.send(command).then(_ => {
-                this[prod ? 'lastUploadProd' : 'lastUploadTest'] = this.metaData.modifiedDate
-                console.log(`Uploaded ${this.title} to ${uploadPath}`)
-            }).catch(err => {
-                console.error(`Call to S3 failed ${JSON.stringify(err)} ${JSON.stringify(params)}`);
-            })
-        } catch (err) {
-            console.error(`Call to S3 failed ${JSON.stringify(err)} ${JSON.stringify(params)}`);
-        }
+        // try {
+        //     return s3Client.send(command).then(_ => {
+        //         this[prod ? 'lastUploadProd' : 'lastUploadTest'] = this.metaData.modifiedDate
+        //         console.log(`Uploaded ${this.title} to ${uploadPath}`)
+        //     }).catch(err => {
+        //         console.error(`Call to S3 failed ${JSON.stringify(err)} ${JSON.stringify(params)}`);
+        //     })
+        // } catch (err) {
+        //     console.error(`Call to S3 failed ${JSON.stringify(err)} ${JSON.stringify(params)}`);
+        // }
+        return Promise.reject("uploading disabled");
     }
 
     abstract fetchFileJSON(): Promise<Object>
