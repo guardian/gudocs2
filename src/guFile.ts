@@ -137,10 +137,6 @@ export abstract class GuFile {
     get id() { return this.metaData.id || "" }
     get title() { return this.metaData.title || "" }
 
-    get pathTest() { return `${this.config.testFolder}/${this.id}.json` }
-
-    get pathProd() { return `${this.config.prodFolder}/${this.id}.json` }
-
     cleanRaw(s: string) {
         if (this.title.startsWith('[HTTP]')) return s;
         else return s.replace(/http:\/\//g, 'https://');
