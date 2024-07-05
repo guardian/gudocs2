@@ -1,4 +1,4 @@
-import { Config, GuFile, deserialize } from './guFile'
+import { Config, FileJSON, GuFile, deserialize } from './guFile'
 import { drive_v2 } from 'googleapis'
 import * as drive from './drive'
 import { JWT } from 'google-auth-library'
@@ -43,7 +43,7 @@ async function saveStateDb(lastChangeId: number): Promise<void> {
     return
 }
 
-async function getGuFile(id: string): Promise<GuFile | null> {
+async function getGuFile(id: string): Promise<FileJSON | null> {
     const result = await dynamo.get({
         TableName: DYNAMODB_TABLE,
         Key: {
@@ -52,7 +52,7 @@ async function getGuFile(id: string): Promise<GuFile | null> {
     })
 
     if (result.Item) {
-        return result.Item.file as GuFile
+        return result.Item.file as FileJSON
     } else {
         return null
     }
@@ -64,8 +64,8 @@ interface PaginatedResult<T> {
     items: Array<T>;
     token: string;
 }
-export async function getAllGuFiles(start?: string): Promise<PaginatedResult<GuFile>> {
     const results = await dynamo.scan({
+export async function getAllGuFiles(start?: number): Promise<PaginatedResult<FileJSON>> {
         TableName: DYNAMODB_TABLE,
         ExclusiveStartKey: {
             "key": start
@@ -82,8 +82,7 @@ export async function getAllGuFiles(start?: string): Promise<PaginatedResult<GuF
     }
 }
 
-async function saveGuFile(id: GuFile): Promise<boolean> {
-    // if (ids.length === 0) return [];
+async function saveGuFile(file: FileJSON): Promise<boolean> {
 
     const result = await dynamo.get({
         TableName: DYNAMODB_TABLE,
@@ -100,15 +99,7 @@ async function saveGuFile(id: GuFile): Promise<boolean> {
     return Promise.reject("not implemented");
 }
 
-async function saveGuFiles(files: Array<GuFile>): Promise<Array<boolean>> {
-    if (files.length === 0) return Promise.resolve([]);
-
-    // var saveArgs = _.flatten( files.map(file => [`${gu.config.dbkey}:${file.id}`, file.serialize()]) )
-    // await gu.db.mset.call(gu.db, saveArgs);
-
-    // var indexArgs = _.flatten( files.map(file => [file.unixdate, file.id]) )
-    // indexArgs.unshift(`${gu.config.dbkey}:index`)
-    // await gu.db.zadd.call(gu.db, indexArgs);
+async function saveGuFiles(files: Array<FileJSON>): Promise<Array<boolean>> {
     return Promise.all(files.map(saveGuFile))
 }
 
@@ -118,7 +109,7 @@ function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
 }
 
 export async function update({fetchAll = false, fileIds = [], prod = false}: { fetchAll: boolean; fileIds: string[]; prod: boolean}, config: Config, auth: JWT): Promise<unknown> {
-    var guFiles: Array<GuFile>;
+    var guFiles: Array<FileJSON>;
     if (fileIds.length > 0) {
         guFiles = (await Promise.all(fileIds.map(getGuFile))).filter(notEmpty);
     } else {
@@ -139,33 +130,34 @@ export async function update({fetchAll = false, fileIds = [], prod = false}: { f
                 return getGuFile(metaData.id).then((fileCache) => {
                     if (fileCache) {
                         fileCache.metaData = metaData
+                        return fileCache
+                    } else {
+                        return {metaData}
                     }
-                    return fileCache
                 })
             } else {
-                return deserialize({metaData}, config, auth)
+                return null;
             }
         }))
         guFiles = unfilteredFiles.filter(notEmpty); // filter any broken/unrecognized
-
     }
 
-    var promises = guFiles.map(guFile => {
-        return guFile.update(prod)
+    const promises = guFiles.map(fileJson => {
+        return deserialize(fileJson, config, auth)?.update(prod)
             .then(() => undefined)
             .catch(err => {
-                console.error('Failed to update', guFile.id, guFile.title)
+                console.error('Failed to update', fileJson.metaData.id, fileJson.metaData.title)
                 console.error(err);
-                return guFile;
+                return fileJson;
             });
     });
 
-    var fails = (await Promise.all(promises)).filter(notEmpty);
+    const fails = (await Promise.all(promises)).filter(notEmpty);
     if (fails.length > 0) {
         console.error('The following updates failed');
-        fails.forEach(fail => console.error(`\t${fail.id} ${fail.title}`));
+        fails.forEach(fail => console.error(`\t${fail.metaData.id} ${fail.metaData.title}`));
     }
-
+    console.log("Storing file metadata")
     return await saveGuFiles(guFiles);
 }
 //}
