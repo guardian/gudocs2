@@ -9,6 +9,9 @@ import { google } from 'googleapis'
 import { configPromiseGetter, secretPromiseGetter } from './awsIntegration';
 import { STAGE } from './constants';
 import { Config, isProdCurrent, isTestCurrent, s3Url } from './guFile';
+import { renderToString } from 'react-dom/server';
+import { index } from './templates';
+import { style } from './templates/style';
 
 
 const getAuth = async () => {
