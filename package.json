@@ -12,9 +12,12 @@
 		"@types/jest": "^29.5.12",
 		"@types/node": "^20.6.0",
 		"@types/papaparse": "^5.3.14",
+		"@types/react": "^18.3.3",
+		"@types/react-dom": "^18.3.0",
 		"esbuild": "^0.19.2",
 		"prettier": "^3.0.3",
-		"typescript": "^5.3.3"
+		"tsx": "^4.9.3",
+		"typescript": "^5.5.0"
 	},
 	"prettier": "@guardian/prettier",
 	"dependencies": {
@@ -29,7 +32,9 @@
 		"aws-s3": "^2.0.5",
 		"express": "^4.19.2",
 		"googleapis": "^131.0.0",
-		"papaparse": "^5.4.1"
+		"papaparse": "^5.4.1",
+		"react": "^18.3.1",
+		"react-dom": "^18.3.1"
 	},
 	"scripts": {
 		"build": "yarn esbuild --bundle --platform=node --target=node18 --outfile=dist/index.js src/index.ts",

@@ -8,7 +8,7 @@ import { State, getAllGuFiles, getStateDb, update } from './fileManager';
 import { google } from 'googleapis'
 import { configPromiseGetter, secretPromiseGetter } from './awsIntegration';
 import { STAGE } from './constants';
-import { Config } from './guFile';
+import { Config, isProdCurrent, isTestCurrent, s3Url } from './guFile';
 
 
 const getAuth = async () => {
@@ -73,8 +73,8 @@ export const publishHandler = async (
 	return await update({ fetchAll: false, fileIds: [fileId], prod: !test }, config, auth).then(() => "File published")
 };
 
-interface DocumentInfo {
-	domainPermissions: unknown;
+export interface DocumentInfo {
+	domainPermissions: string;
 	iconLink: string | null | undefined;
 	modifiedDate: string | null | undefined;
 	urlDocs: string | null | undefined;
@@ -84,6 +84,8 @@ interface DocumentInfo {
 	isProdCurrent: boolean | undefined;
 	urlProd: string;
 	id: string;
+	title: string;
+	lastModifyingUserName: string | null | undefined;
 }
 
 interface Response {
@@ -108,7 +110,9 @@ export async function readDocuments(lastModified: number | undefined, dev: strin
 		urlTest: s3Url(file, config.s3bucket, config.testFolder),
 		isProdCurrent: isProdCurrent(file),
 		urlProd: s3Url(file, config.s3bucket, config.prodFolder),
-		id: file.metaData.id || ""
+		id: file.metaData.id || "",
+		title: file.metaData.title || "",
+		lastModifyingUserName: file.metaData.lastModifyingUserName,
 	})
 	})
 	return {
