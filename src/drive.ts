@@ -9,8 +9,6 @@ import type { GaxiosPromise } from 'gaxios'
 var drive = google.drive('v2');
 var sheets = google.sheets('v4');
 
-secretPromiseGetter("google-key")
-
 export async function fetchAllChanges(pageToken: string | undefined = undefined, auth: JWT): Promise<{ items: drive_v2.Schema$Change[], largestChangeId: number }> {
     const options = Object.assign({auth, 'maxResults': 1000}, pageToken ? {pageToken} : {});
     const page = await drive.changes.list(options);
