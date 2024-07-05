@@ -98,14 +98,15 @@ export async function readDocuments(lastModified: number | undefined, dev: strin
 		domainPermissions: file.domainPermissions,
 		iconLink: file.metaData.iconLink,
 		modifiedDate: file.metaData.modifiedDate,
-		urlDocs: file.urlDocs,
-		isTable: file.properties.isTable,
-		isTestCurrent: file.isTestCurrent(),
-		urlTest: file.urlTest,
-		isProdCurrent: file.isProdCurrent(),
-		urlProd: file.urlProd,
-		id: file.id
-	}))
+		urlDocs: file.metaData.alternateLink,
+		isTable: file.properties?.isTable,
+		isTestCurrent: isTestCurrent(file),
+		urlTest: s3Url(file, config.s3bucket, config.testFolder),
+		isProdCurrent: isProdCurrent(file),
+		urlProd: s3Url(file, config.s3bucket, config.prodFolder),
+		id: file.metaData.id || ""
+	})
+	})
 	return {
 		token: filesResponse.token,
 		dev,
