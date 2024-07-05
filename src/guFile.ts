@@ -34,19 +34,31 @@ interface FileProperties {
     isTable?: boolean;
 }
 
-interface FileJSON {
+export interface FileJSON {
     lastUploadTest?: unknown;
     metaData: drive_v2.Schema$File;
     lastUploadProd?: unknown;
     domainPermissions?: string;
-    properties?: {};
+    properties?: FileProperties;
+}
+
+export function isTestCurrent(file: FileJSON) {
+    return file.lastUploadTest === file.metaData.modifiedDate;
+}
+
+export function isProdCurrent(file: FileJSON) {
+    return file.lastUploadProd === file.metaData.modifiedDate;
+}
+
+export function s3Url(file: FileJSON, s3domain: string, testFolder: string) { 
+    return `${s3domain}/${testFolder}/${file.metaData.id || ""}.json`
 }
 
 export abstract class GuFile {
     metaData: drive_v2.Schema$File;
     lastUploadTest: unknown;
     lastUploadProd: unknown;
-    domainPermissions: unknown;
+    domainPermissions: string;
     properties: FileProperties;
     config: Config;
     auth: JWT;
@@ -77,14 +89,15 @@ export abstract class GuFile {
     isTestCurrent() { return this.lastUploadTest === this.metaData.modifiedDate }
     isProdCurrent() { return this.lastUploadProd === this.metaData.modifiedDate }
 
-    serialize() {
-        return JSON.stringify({
+    serializeJSON() {
+        const fileJson: FileJSON = {
             metaData: this.metaData,
             lastUploadTest: this.lastUploadTest,
             lastUploadProd: this.lastUploadProd,
             domainPermissions: this.domainPermissions,
             properties: this.properties
-        });
+        }
+        return fileJson;
     }
 
     cleanRaw(s: string) {

@@ -40,14 +40,18 @@ const getConfig = async (): Promise<Config> => {
 	}
 }
 
+export const doSchedule = async (): Promise<string> => {
+	const auth = await getAuth();
+	const config = await getConfig();
+	return await update({ fetchAll: false, fileIds: [], prod: false }, config, auth).then(() => "Schedule done");
+};
+
 export const scheduleHandler = async (
 	event: APIGatewayProxyEvent,
 	context: APIGatewayEventRequestContext,
 	callback: APIGatewayProxyCallback,
 ): Promise<string> => {
-	const auth = await getAuth();
-	const config = await getConfig();
-	return await update({ fetchAll: false, fileIds: [], prod: false }, config, auth).then(() => "Schedule done");
+	return await doSchedule()
 };
 
 export const publishHandler = async (
