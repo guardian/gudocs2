@@ -29,8 +29,8 @@ export async function fetchAllChanges(pageToken: string | undefined = undefined,
     }
 }
 
-export async function fetchRecentChanges(startChangeId: string, auth: JWT): Promise<{ items: drive_v2.Schema$Change[], largestChangeId: number }> {
-    const options = {auth, startChangeId, 'maxResults': 25};
+export async function fetchRecentChanges(startChangeId: number, auth: JWT): Promise<{ items: drive_v2.Schema$Change[], largestChangeId: number }> {
+    const options = {auth, startChangeId: startChangeId.toString(), 'maxResults': 25};
     const page = await drive.changes.list(options);
     return {
         items: page.data.items || [],

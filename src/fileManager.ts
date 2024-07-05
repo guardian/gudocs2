@@ -122,7 +122,7 @@ export async function update({fetchAll = false, fileIds = [], prod = false}: { f
         const db = await getStateDb();
         const changeList = fetchAll ?
             await drive.fetchAllChanges(undefined, auth) :
-            await drive.fetchRecentChanges((1 + Number(db.lastChangeId).toString()), auth);
+            await drive.fetchRecentChanges(1 + Number(db.lastChangeId), auth);
 
         console.log(`${changeList.items.length} changes. Largest ChangeId: ${changeList.largestChangeId}`);
 
