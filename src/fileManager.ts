@@ -89,20 +89,20 @@ export async function getAllGuFiles(start?: number): Promise<PaginatedResult<Fil
 }
 
 async function saveGuFile(file: FileJSON): Promise<boolean> {
+    const Item = {
+        "key": `file:${file.metaData.id}`,
+        file: file,
+        lastModified: file.metaData.modifiedDate ? new Date(file.metaData.modifiedDate).getTime() : new Date().getTime(),
+        "type": "file",
+    };
 
-    const result = await dynamo.get({
+    // todo: handle errors?
+    await dynamo.put({
         TableName: DYNAMODB_TABLE,
-        Key: {
-            "key": "config"
-        }
-    })
+        Item
+    });
 
-    // todo: fetch files from dynamodb
-    // var keys = ids.map(id => `${gu.config.dbkey}:${id}`)
-    // var strs = await gu.db.mget.call(gu.db, keys);
-    // var jsons = strs.map(JSON.parse);
-    // return jsons.map(json => json && deserialize(json));
-    return Promise.reject("not implemented");
+    return true;
 }
 
 async function saveGuFiles(files: Array<FileJSON>): Promise<Array<boolean>> {
