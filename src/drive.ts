@@ -4,6 +4,7 @@ import { docs } from 'googleapis/build/src/apis/docs';
 import { secretPromiseGetter } from './awsIntegration';
 import { STAGE } from './constants';
 import { JWT } from 'google-auth-library'
+import type { GaxiosPromise } from 'gaxios'
 
 var drive = google.drive('v2');
 var sheets = google.sheets('v4');
@@ -47,18 +48,18 @@ export function getSpreadsheet(spreadsheetId: string, auth: JWT) {
     return sheets.spreadsheets.get({ auth, spreadsheetId })
 }
 
-export async function getDoc(fileId: string, auth: JWT) {
+export async function getDoc(fileId: string, auth: JWT): GaxiosPromise<string>  {
     return drive.files.export({
         auth,
         fileId: fileId,
         mimeType: 'text/plain'
-    }) as unknown as string
+    }) as GaxiosPromise<string>
 }
 
-export async function getSheet(fileId: string, auth: JWT): Promise<string> {
-    return await drive.files.export({
+export function getSheet(fileId: string, auth: JWT): GaxiosPromise<Blob> {
+    return drive.files.export({
         auth,
         fileId: fileId,
         mimeType: 'text/csv'
-    }) as unknown as string
+    }) as GaxiosPromise<Blob>
 }
