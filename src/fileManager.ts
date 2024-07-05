@@ -64,12 +64,18 @@ interface PaginatedResult<T> {
     items: Array<T>;
     token: string;
 }
-    const results = await dynamo.scan({
 export async function getAllGuFiles(start?: number): Promise<PaginatedResult<FileJSON>> {
+    const results = await dynamo.query({
         TableName: DYNAMODB_TABLE,
-        ExclusiveStartKey: {
-            "key": start
+        IndexName: "last-modified",
+        ExpressionAttributeValues: {
+            ':type': 'file',
+            ':lastModified': start || 0,
         },
+        ExpressionAttributeNames: {
+            "#t": "type"
+        },
+        KeyConditionExpression: "#t = :type AND lastModified > :lastModified",
         Limit: 10,
     })
     const lastEvaluatedKey = results.LastEvaluatedKey
