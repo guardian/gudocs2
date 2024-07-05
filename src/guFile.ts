@@ -105,12 +105,12 @@ export abstract class GuFile {
         else return s.replace(/http:\/\//g, 'https://');
     }
 
-    async fetchDomainPermissions() {
+    async fetchDomainPermissions(): Promise<string> {
         var configuredRequireDomainPermissions = this.config.require_domain_permissions;
         if (configuredRequireDomainPermissions) {
             var perms = await drive.fetchFilePermissions(this.id, this.auth);
             var domainPermission = (perms.data.items || []).find(i => i.name === configuredRequireDomainPermissions)
-            if (domainPermission) {
+            if (domainPermission && domainPermission.role) {
                 return domainPermission.role;
             } else if((perms.data.items || []).find(i => i.emailAddress === this.config.client_email)) {
                 return 'none';
