@@ -67,6 +67,54 @@ export async function fetchDomainPermissions(file: FileJSON, auth: JWT, required
     }
 }
 
+function uploadToS3(body: Object, prod: Boolean, s3bucket: string, title: string, id: string, folder: string) {
+    const uploadPath = `${folder}/${id}.json` 
+    const params = {
+        Bucket: s3bucket,
+        Key: uploadPath,
+        Body: JSON.stringify(body),
+        ACL: 'public-read',
+        ContentType: 'application/json',
+        CacheControl: prod ? 'max-age=30' : 'max-age=5'
+    }
+
+    const command = new PutObjectCommand({
+        Bucket: s3bucket,
+        Key: uploadPath,
+        Body: JSON.stringify(body),
+        ACL: 'public-read',
+        ContentType: 'application/json',
+        CacheControl: prod ? 'max-age=30' : 'max-age=5'
+    });
+    
+    // try {
+    //     return s3Client.send(command).then(_ => {
+    //         this[prod ? 'lastUploadProd' : 'lastUploadTest'] = this.metaData.modifiedDate // todo: store this somewhere
+    //         console.log(`Uploaded ${title} to ${uploadPath}`)
+    //     }).catch(err => {
+    //         console.error(`Call to S3 failed ${JSON.stringify(err)} ${JSON.stringify(params)}`);
+    //     })
+    // } catch (err) {
+    //     console.error(`Call to S3 failed ${JSON.stringify(err)} ${JSON.stringify(params)}`);
+    // }
+    return Promise.reject("uploading disabled");
+}
+
+export async function fileUpdate(publish: Boolean, config: Config, auth: JWT, file: FileJSON) {
+    console.log(`Updating ${file.metaData.id} ${file.metaData.title} (${file.metaData.mimeType})`);
+
+    const body = await deserialize(file, config, auth)?.fetchFileJSON();
+    if (body === undefined)
+        return;
+
+    console.log(`Uploading ${file.metaData.id} ${file.metaData.title} (${file.metaData.mimeType}) to S3`);
+    const p = uploadToS3(body, false, config.s3bucket, file.metaData.title || "", file.metaData.id || "", config.testFolder);
+    if (publish && p) return p.then(() => 
+        uploadToS3(body, true, config.s3bucket, file.metaData.title || "", file.metaData.id || "", config.prodFolder)
+    );
+    return p;
+}
+
 export abstract class GuFile {
     metaData: drive_v2.Schema$File;
     lastUploadTest: unknown;
@@ -96,50 +144,6 @@ export abstract class GuFile {
     cleanRaw(s: string) {
         if (this.title.startsWith('[HTTP]')) return s;
         else return s.replace(/http:\/\//g, 'https://');
-    }
-
-    async update(publish: Boolean) {
-        console.log(`Updating ${this.id} ${this.title} (${this.metaData.mimeType})`);
-
-        var body = await this.fetchFileJSON();
-
-        console.log(`Uploading ${this.id} ${this.title} (${this.metaData.mimeType}) to S3`);
-        const p = this.uploadToS3(body, false);
-        if (publish && p) return p.then(() => this.uploadToS3(body, true));
-        return p;
-    }
-
-    uploadToS3(body: Object, prod: Boolean) {
-        const uploadPath = prod ? this.pathProd : this.pathTest;
-        const params = {
-            Bucket: this.config.s3bucket,
-            Key: uploadPath,
-            Body: JSON.stringify(body),
-            ACL: 'public-read',
-            ContentType: 'application/json',
-            CacheControl: prod ? 'max-age=30' : 'max-age=5'
-        }
-
-        const command = new PutObjectCommand({
-            Bucket: this.config.s3bucket,
-            Key: uploadPath,
-            Body: JSON.stringify(body),
-            ACL: 'public-read',
-            ContentType: 'application/json',
-            CacheControl: prod ? 'max-age=30' : 'max-age=5'
-        });
-        
-        // try {
-        //     return s3Client.send(command).then(_ => {
-        //         this[prod ? 'lastUploadProd' : 'lastUploadTest'] = this.metaData.modifiedDate
-        //         console.log(`Uploaded ${this.title} to ${uploadPath}`)
-        //     }).catch(err => {
-        //         console.error(`Call to S3 failed ${JSON.stringify(err)} ${JSON.stringify(params)}`);
-        //     })
-        // } catch (err) {
-        //     console.error(`Call to S3 failed ${JSON.stringify(err)} ${JSON.stringify(params)}`);
-        // }
-        return Promise.reject("uploading disabled");
     }
 
     abstract fetchFileJSON(): Promise<Object>

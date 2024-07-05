@@ -1,4 +1,4 @@
-import { Config, FileJSON, GuFile, deserialize, fetchDomainPermissions } from './guFile'
+import { Config, FileJSON, GuFile, deserialize, fetchDomainPermissions, fileUpdate } from './guFile'
 import { drive_v2 } from 'googleapis'
 import * as drive from './drive'
 import { JWT } from 'google-auth-library'
@@ -148,7 +148,7 @@ export async function update({fetchAll = false, fileIds = [], prod = false}: { f
     }
 
     const promises = guFiles.map(fileJson => {
-        return deserialize(fileJson, config, auth)?.update(prod)
+        return fileUpdate(prod, config, auth, fileJson)
             .then(() => undefined)
             .catch(err => {
                 console.error('Failed to update', fileJson.metaData.id, fileJson.metaData.title)
