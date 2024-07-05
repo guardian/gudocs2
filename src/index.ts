@@ -89,10 +89,12 @@ interface Response {
 	files: Array<DocumentInfo>;
 }
 
-async function readDocuments(token: string | undefined, dev: string | undefined): Promise<Response> {
+export async function readDocuments(lastModified: number | undefined, dev: string | undefined): Promise<Response> {
 	const state = await getStateDb();
-	const filesResponse = await getAllGuFiles(token)
-	const files = filesResponse.items.map((file) => ({
+	const filesResponse = await getAllGuFiles(lastModified)
+	const config = await getConfig();
+	const files = filesResponse.items.map((file) => {
+		return ({
 		domainPermissions: file.domainPermissions,
 		iconLink: file.metaData.iconLink,
 		modifiedDate: file.metaData.modifiedDate,
@@ -117,7 +119,7 @@ export const getDocuments = async (
 	context: APIGatewayEventRequestContext,
 	callback: APIGatewayProxyCallback,
 ): Promise<Response> => {
-	const token = (event.queryStringParameters || {})["page"]
+	const lastModified = Number((event.queryStringParameters || {})["lastModified"]) || 0
 	const dev = (event.queryStringParameters || {})["dev"];
-	return readDocuments(token, dev);
+	return readDocuments(lastModified, dev);
 };
