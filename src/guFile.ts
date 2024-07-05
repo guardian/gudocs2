@@ -90,17 +90,8 @@ export abstract class GuFile {
     get title() { return this.metaData.title || "" }
 
     get pathTest() { return `${this.config.testFolder}/${this.id}.json` }
-    get urlTest() { return `${this.config.s3domain}/${this.pathTest}` }
 
     get pathProd() { return `${this.config.prodFolder}/${this.id}.json` }
-    get urlProd() { return `${this.config.s3domain}/${this.pathProd}` }
-
-    get urlDocs() { return this.metaData.alternateLink; }
-
-    get unixdate() { return Date.parse(this.metaData.modifiedDate || ""); }
-
-    isTestCurrent() { return this.lastUploadTest === this.metaData.modifiedDate }
-    isProdCurrent() { return this.lastUploadProd === this.metaData.modifiedDate }
 
     serializeJSON() {
         const fileJson: FileJSON = {
