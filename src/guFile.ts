@@ -173,7 +173,7 @@ export abstract class GuFile {
 class DocsFile extends GuFile {
     async fetchFileJSON(): Promise<Object> {
       const doc = await drive.getDoc(this.metaData.id || "", this.auth);
-      return archieml.load(doc);
+      return archieml.load(doc.data);
     }
 }
 
