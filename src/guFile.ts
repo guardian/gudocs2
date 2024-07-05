@@ -93,17 +93,6 @@ export abstract class GuFile {
 
     get pathProd() { return `${this.config.prodFolder}/${this.id}.json` }
 
-    serializeJSON() {
-        const fileJson: FileJSON = {
-            metaData: this.metaData,
-            lastUploadTest: this.lastUploadTest,
-            lastUploadProd: this.lastUploadProd,
-            domainPermissions: this.domainPermissions,
-            properties: this.properties
-        }
-        return fileJson;
-    }
-
     cleanRaw(s: string) {
         if (this.title.startsWith('[HTTP]')) return s;
         else return s.replace(/http:\/\//g, 'https://');
