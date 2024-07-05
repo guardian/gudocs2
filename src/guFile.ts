@@ -207,8 +207,9 @@ class SheetsFile extends GuFile {
         if (!exportLinks) {
             throw new Error("Missing export links")
         }
-        const x = await drive.getSheet(this.metaData.id || "", this.auth) // sheet.properties.sheetId - is that the individual sheet rather than the Spreadsheet?
-        var csv = this.cleanRaw(x);
+        const response = await drive.getSheet(this.metaData.id || "", this.auth) // sheet.properties.sheetId - is that the individual sheet rather than the Spreadsheet?
+        const text = await response.data.text();
+        var csv = this.cleanRaw(text);
         var json = Papa.parse(csv, {'header': sheet.properties?.title !== 'tableDataSheet'}).data;
         return {[sheet.properties?.title || ""]: json};
     }
