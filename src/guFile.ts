@@ -103,7 +103,7 @@ function uploadToS3(body: Object, prod: Boolean, s3bucket: string, title: string
 export async function fileUpdate(publish: Boolean, config: Config, auth: JWT, file: FileJSON) {
     console.log(`Updating ${file.metaData.id} ${file.metaData.title} (${file.metaData.mimeType})`);
 
-    const body = await deserialize(file, config, auth)?.fetchFileJSON();
+    const body = fetchFileJSON(file, auth);
     if (body === undefined)
         return;
 
@@ -115,42 +115,24 @@ export async function fileUpdate(publish: Boolean, config: Config, auth: JWT, fi
     return p;
 }
 
-export abstract class GuFile {
-    metaData: drive_v2.Schema$File;
-    lastUploadTest: unknown;
-    lastUploadProd: unknown;
-    domainPermissions: string;
-    properties: FileProperties;
-    config: Config;
-    auth: JWT;
-
-    constructor({metaData, lastUploadTest = null, lastUploadProd = null, domainPermissions = 'unknown', properties = {}}: FileJSON, config: Config, auth: JWT) {
-        this.metaData = metaData;
-        this.lastUploadTest = lastUploadTest;
-        this.lastUploadProd = lastUploadProd;
-        this.domainPermissions = domainPermissions;
-        this.properties = properties;
-        this.auth = auth;
-        this.config = config;
-    }
-
-    get id() { return this.metaData.id || "" }
-    get title() { return this.metaData.title || "" }
-
-    abstract fetchFileJSON(): Promise<Object>
-    
-}
-
 function cleanRaw(title: string, s: string) {
     if (title.startsWith('[HTTP]')) return s;
     else return s.replace(/http:\/\//g, 'https://');
 }
 
-class DocsFile extends GuFile {
-    async fetchFileJSON(): Promise<Object> {
-      const doc = await drive.getDoc(this.metaData.id || "", this.auth);
-      return archieml.load(cleanRaw(this.title, doc.data));
+async function fetchFileJSON(file: FileJSON, auth: JWT): Promise<Object> {
+    if (file.metaData.mimeType === 'application/vnd.google-apps.document') {
+        return fetcDocJSON(file.metaData.id || "", file.metaData.title || "", auth);
+    } else if (file.metaData.mimeType === 'application/vnd.google-apps.spreadsheet') {
+        return fetchSpreadsheetJSON(file, auth);
+    } else {
+        throw `mimeType ${file.metaData.mimeType} not recognized`
     }
+}
+
+async function fetcDocJSON(id: string, title: string, auth: JWT): Promise<Object> {
+    const doc = await drive.getDoc(id, auth);
+    return archieml.load(cleanRaw(title, doc.data));
 }
 
 // Some magic numbers that seem to make Google happy
@@ -159,48 +141,33 @@ const delayExp = 1.6;
 const delayCutoff = 8; // After this many sheets, just wait delayMax
 const delayMax = 20000;
 
-class SheetsFile extends GuFile {
-    async fetchFileJSON() {
-        var spreadsheet = await drive.getSpreadsheet(this.id, this.auth);
-        var ms = 0;
-        const delays = spreadsheet.data.sheets?.map((sheet, n) => {
-            ms += n > delayCutoff ? delayMax : delayInitial * Math.pow(delayExp, n);
-            return delay(ms, () => this.fetchSheetJSON(sheet));
-        }) || [];
-        try {
-            var sheetJSONs = await Promise.all(delays.map(d => d.promise));
-            this.properties.isTable = sheetJSONs.findIndex(sheetJSON => sheetJSON.tableDataSheet !== undefined) > -1;
-
-            return {'sheets': Object.assign({}, ...sheetJSONs)};
-        } catch (err) {
-            delays.forEach(d => d.cancel());
-            throw err;
-        }
+async function fetchSheetJSON(sheet: sheets_v4.Schema$Sheet, exportLinks: drive_v2.Schema$File['exportLinks'], id: string, title: string, auth: JWT) {
+    if (!exportLinks) {
+        throw new Error("Missing export links")
     }
-
-    async fetchSheetJSON(sheet: sheets_v4.Schema$Sheet) {
-        let exportLinks = this.metaData.exportLinks
-        if (!exportLinks) {
-            throw new Error("Missing export links")
-        }
-        const response = await drive.getSheet(this.metaData.id || "", this.auth) // sheet.properties.sheetId - is that the individual sheet rather than the Spreadsheet?
-        const text = await response.data.text();
-        var csv = cleanRaw(this.title, text);
-        var json = Papa.parse(csv, {'header': sheet.properties?.title !== 'tableDataSheet'}).data;
-        return {[sheet.properties?.title || ""]: json};
-    }
+    const response = await drive.getSheet(id, auth) // sheet.properties.sheetId - is that the individual sheet rather than the Spreadsheet?
+    const text = await response.data.text();
+    var csv = cleanRaw(title, text);
+    var json = Papa.parse(csv, {'header': sheet.properties?.title !== 'tableDataSheet'}).data;
+    return {[sheet.properties?.title || ""]: json};
 }
 
-const types: Record<string, typeof SheetsFile | typeof DocsFile> = {
-    'application/vnd.google-apps.spreadsheet': SheetsFile,
-    'application/vnd.google-apps.document': DocsFile
-};
+async function fetchSpreadsheetJSON(file: FileJSON, auth: JWT) {
+    var spreadsheet = await drive.getSpreadsheet(file.metaData.id || "", auth);
+    var ms = 0;
+    const delays = spreadsheet.data.sheets?.map((sheet, n) => {
+        ms += n > delayCutoff ? delayMax : delayInitial * Math.pow(delayExp, n);
+        return delay(ms, () => fetchSheetJSON(sheet, file.metaData.exportLinks, file.metaData.id || "", file.metaData.title || "", auth));
+    }) || [];
+    try {
+        var sheetJSONs = await Promise.all(delays.map(d => d.promise));
+        file.properties = {
+            isTable: sheetJSONs.findIndex(sheetJSON => sheetJSON.tableDataSheet !== undefined) > -1
+        }
 
-export function deserialize(json: FileJSON, config: Config, auth: JWT): GuFile | undefined {
-    const FileClass = types[json.metaData.mimeType || ""];
-    if (!FileClass) {
-        console.warn(`mimeType ${json.metaData.mimeType} not recognized`);
-    } else {
-        return new FileClass(json, config, auth);
+        return {'sheets': Object.assign({}, ...sheetJSONs)};
+    } catch (err) {
+        delays.forEach(d => d.cancel());
+        throw err;
     }
 }

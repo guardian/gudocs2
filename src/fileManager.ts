@@ -1,4 +1,4 @@
-import { Config, FileJSON, GuFile, deserialize, fetchDomainPermissions, fileUpdate } from './guFile'
+import { Config, FileJSON, fetchDomainPermissions, fileUpdate } from './guFile'
 import { drive_v2 } from 'googleapis'
 import * as drive from './drive'
 import { JWT } from 'google-auth-library'
@@ -83,7 +83,7 @@ export async function getAllGuFiles(start?: number): Promise<PaginatedResult<Fil
 
     const items = results.Items
     return {
-        items: items ? items.map((item) => item.file as GuFile) : [],
+        items: items ? items.map((item) => item.file as FileJSON) : [],
         token
     }
 }
