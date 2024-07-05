@@ -137,19 +137,19 @@ export abstract class GuFile {
     get id() { return this.metaData.id || "" }
     get title() { return this.metaData.title || "" }
 
-    cleanRaw(s: string) {
-        if (this.title.startsWith('[HTTP]')) return s;
-        else return s.replace(/http:\/\//g, 'https://');
-    }
-
     abstract fetchFileJSON(): Promise<Object>
     
+}
+
+function cleanRaw(title: string, s: string) {
+    if (title.startsWith('[HTTP]')) return s;
+    else return s.replace(/http:\/\//g, 'https://');
 }
 
 class DocsFile extends GuFile {
     async fetchFileJSON(): Promise<Object> {
       const doc = await drive.getDoc(this.metaData.id || "", this.auth);
-      return archieml.load(this.cleanRaw(doc.data));
+      return archieml.load(cleanRaw(this.title, doc.data));
     }
 }
 
@@ -185,7 +185,7 @@ class SheetsFile extends GuFile {
         }
         const response = await drive.getSheet(this.metaData.id || "", this.auth) // sheet.properties.sheetId - is that the individual sheet rather than the Spreadsheet?
         const text = await response.data.text();
-        var csv = this.cleanRaw(text);
+        var csv = cleanRaw(this.title, text);
         var json = Papa.parse(csv, {'header': sheet.properties?.title !== 'tableDataSheet'}).data;
         return {[sheet.properties?.title || ""]: json};
     }
