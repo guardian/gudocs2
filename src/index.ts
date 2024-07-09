@@ -15,23 +15,18 @@ import { style } from './templates/style';
 
 
 const getAuth = async () => {
-	const googleServiceAccountDetails = JSON.parse(
-		await secretPromiseGetter(
-			`google/${STAGE === "PROD" ? "PROD" : "CODE"}/serviceAccountKey`
-		)
-	);
-	
+	const googleServiceAccountDetails = JSON.parse(await secretPromiseGetter("serviceAccountKey"));
 	return new google.auth.JWT(googleServiceAccountDetails.client_email, undefined, googleServiceAccountDetails.private_key, ['https://www.googleapis.com/auth/drive']);
 }
 
 const getConfig = async (): Promise<Config> => {
-	const testFolder = await configPromiseGetter(`s3/${STAGE === "PROD" ? "PROD" : "CODE"}/testFolder`)
-	const prodFolder = await configPromiseGetter(`s3/${STAGE === "PROD" ? "PROD" : "CODE"}/prodFolder`)
-	const s3domain = await configPromiseGetter(`s3/${STAGE === "PROD" ? "PROD" : "CODE"}/s3domain`)
-	const s3bucket = await configPromiseGetter(`s3/${STAGE === "PROD" ? "PROD" : "CODE"}/s3bucket`)
-	const require_domain_permissions = await configPromiseGetter(`${STAGE === "PROD" ? "PROD" : "CODE"}/require_domain_permissions`)
-	const client_email = await configPromiseGetter(`google/${STAGE === "PROD" ? "PROD" : "CODE"}/client_email`)
-	await configPromiseGetter(`s3/${STAGE === "PROD" ? "PROD" : "CODE"}/testFolder`)
+	const testFolder = "docsdata-test"
+	const prodFolder = "docsdata"
+	const s3domain = await configPromiseGetter("s3domain")
+	const s3bucket = await configPromiseGetter("s3bucket")
+	const require_domain_permissions = await configPromiseGetter("require_domain_permissions")
+	const client_email = await configPromiseGetter("client_email")
+	const baseUrl = await configPromiseGetter("base_url")
 
 	return {
 		testFolder,
