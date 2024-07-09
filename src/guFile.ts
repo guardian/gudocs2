@@ -66,7 +66,7 @@ export async function fetchDomainPermissions(file: FileJSON, auth: JWT, required
     }
 }
 
-function uploadToS3(body: Object, prod: Boolean, s3bucket: string, title: string, id: string, folder: string) {
+function uploadToS3(body: Object, prod: Boolean, s3bucket: string, title: string, id: string, folder: string): Promise<unknown> {
     const uploadPath = `${folder}/${id}.json` 
     const params = {
         Bucket: s3bucket,
