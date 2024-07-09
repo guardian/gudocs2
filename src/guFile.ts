@@ -27,6 +27,7 @@ export interface Config {
     require_domain_permissions: string;
     s3bucket: string;
     client_email: string;
+    baseUrl: string;
 }
 
 const s3Client = new S3Client(s3AwsConfig);

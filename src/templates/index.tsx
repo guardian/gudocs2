@@ -1,7 +1,7 @@
 import React from 'react';
 import { DocumentInfo } from '..';
 
-export const index = (css: string, lastSaved: string, email: string, domainPermissions: string, files: Array<DocumentInfo>) => <html>
+export const index = (css: string, lastSaved: string, email: string, domainPermissions: string, files: Array<DocumentInfo>, baseUrl: string) => <html>
 <head>
 	<title>Guardian Visuals - docs</title>
 	<style type="text/css">{ css }</style>
@@ -94,7 +94,7 @@ export const index = (css: string, lastSaved: string, email: string, domainPermi
 					</td>
 					<td>
 						{ !file.isProdCurrent ?
-							<form method="POST" action='{{config.base_url}}/publish'>
+							<form method="POST" action={`${baseUrl}/publish`}>
 								<input type="hidden" name="id" value={ file.id } />
 								<button className="btn btn--blue">publish</button>
 							</form>

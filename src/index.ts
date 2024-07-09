@@ -40,6 +40,7 @@ const getConfig = async (): Promise<Config> => {
 		require_domain_permissions,
 		s3bucket,
 		client_email,
+		baseUrl,
 	}
 }
 
@@ -102,7 +103,14 @@ export async function renderDashboard() {
 	const config = await getConfig();
 	const state = await getStateDb();
 	const r = await readDocuments(undefined, undefined);
-	return renderToString(index(style, state.lastSaved.toISOString(), config.client_email, config.require_domain_permissions, r.files));
+	return renderToString(index(
+		style,
+		state.lastSaved.toISOString(),
+		config.client_email,
+		config.require_domain_permissions,
+		r.files,
+		config.baseUrl
+	));
 }
 
 export async function readDocuments(lastModified: number | undefined, dev: string | undefined): Promise<Response> {
