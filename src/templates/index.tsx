@@ -73,7 +73,7 @@ export const index = (css: string, lastSaved: string, email: string, domainPermi
 
 			<tbody>
 				{ files.map((file) => 
-				<tr className={`domainpermissions--${file.domainPermissions}`}>
+				<tr key={file.id} className={`domainpermissions--${file.domainPermissions}`}>
 					<td><img src={ file.iconLink || undefined }/>{ file.title }</td>
 					<td title={ file.modifiedDate || undefined }>{ file.modifiedDate }</td>
 					<td>{ file.lastModifyingUserName }</td>
