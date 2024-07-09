@@ -57,7 +57,6 @@ export function s3Url(file: FileJSON, s3domain: string, testFolder: string) {
 export async function fetchDomainPermissions(file: FileJSON, auth: JWT, requiredDomain: string, client_email: string): Promise<string> {
     const perms = await drive.fetchFilePermissions(file.metaData.id || "", auth);
     const domainPermission = (perms.data.items || []).find(i => i.name === requiredDomain)
-    console.log(JSON.stringify(perms));
     if (domainPermission && domainPermission.role) {
         return domainPermission.role;
     } else if((perms.data.items || []).find(i => i.emailAddress === client_email)) {
