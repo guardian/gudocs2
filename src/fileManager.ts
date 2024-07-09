@@ -128,7 +128,7 @@ export async function update({fetchAll = false, fileIds = [], prod = false}: { f
 
         await saveStateDb(changeList.largestChangeId);
 
-        const filesMetadata = changeList.items.map(change => change.file).filter((x) => x !== undefined) // as Array<drive_v2.Schema$File> // todo: remove cast
+        const filesMetadata = changeList.items.map(change => change.file).filter((x) => x !== undefined)
 
         const unfilteredFiles = await Promise.all(filesMetadata.map(metaData => {
             if (metaData.id) {
