@@ -126,7 +126,7 @@ export async function readDocuments(lastModified: number | undefined, dev: strin
 	const config = await getConfig();
 	const files = filesResponse.items.map((file) => {
 		return ({
-		domainPermissions: file.domainPermissions,
+		domainPermissions: file.domainPermissions || "unknown",
 		iconLink: file.metaData.iconLink,
 		modifiedDate: file.metaData.modifiedDate,
 		urlDocs: file.metaData.alternateLink,
