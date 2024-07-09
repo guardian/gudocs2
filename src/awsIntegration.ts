@@ -4,12 +4,21 @@ import { APP, STAGE, STACK, AWS_REGION } from "./constants";
 
 const LOCAL_PROFILE = "interactives";
 
+const LOCAL_S3_PROFILE = "composer";
+
 export const IS_RUNNING_LOCALLY = !process.env.LAMBDA_TASK_ROOT;
 
 export const standardAwsConfig = {
   region: AWS_REGION,
   credentials: IS_RUNNING_LOCALLY
     ? fromIni({ profile: LOCAL_PROFILE })
+    : fromNodeProviderChain(),
+};
+
+export const s3AwsConfig = {
+  region: AWS_REGION,
+  credentials: IS_RUNNING_LOCALLY
+    ? fromIni({ profile: LOCAL_S3_PROFILE })
     : fromNodeProviderChain(),
 };
 

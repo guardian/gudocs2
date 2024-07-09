@@ -6,6 +6,7 @@ import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { delay } from './util'
 import { drive_v2, sheets_v4 } from 'googleapis';
 import { JWT } from 'google-auth-library'
+import { s3AwsConfig } from './awsIntegration';
 
 // import createLimiter from './limiter'
 
@@ -28,7 +29,7 @@ export interface Config {
     client_email: string;
 }
 
-const s3Client = new S3Client({});
+const s3Client = new S3Client(s3AwsConfig);
 
 interface FileProperties {
     isTable?: boolean;
