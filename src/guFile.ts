@@ -88,23 +88,23 @@ function uploadToS3(body: Object, prod: Boolean, s3bucket: string, title: string
         CacheControl: prod ? 'max-age=30' : 'max-age=5'
     });
     
-    // try {
-    //     return s3Client.send(command).then(_ => {
-    //         this[prod ? 'lastUploadProd' : 'lastUploadTest'] = this.metaData.modifiedDate // todo: store this somewhere
-    //         console.log(`Uploaded ${title} to ${uploadPath}`)
-    //     }).catch(err => {
-    //         console.error(`Call to S3 failed ${JSON.stringify(err)} ${JSON.stringify(params)}`);
-    //     })
-    // } catch (err) {
-    //     console.error(`Call to S3 failed ${JSON.stringify(err)} ${JSON.stringify(params)}`);
-    // }
-    return Promise.reject("uploading disabled");
+    try {
+        return s3Client.send(command).then(_ => {
+    //        this[prod ? 'lastUploadProd' : 'lastUploadTest'] = this.metaData.modifiedDate // todo: store this somewhere
+            console.log(`Uploaded ${title} to ${uploadPath}`)
+        }).catch(err => {
+            console.error(`Call to S3 failed ${JSON.stringify(err)} ${JSON.stringify(params)}`);
+        })
+    } catch (err) {
+        console.error(`Call to S3 failed ${JSON.stringify(err)} ${JSON.stringify(params)}`);
+        return Promise.reject("Upload to S3 failed");
+    }
 }
 
 export async function fileUpdate(publish: Boolean, config: Config, auth: JWT, file: FileJSON) {
     console.log(`Updating ${file.metaData.id} ${file.metaData.title} (${file.metaData.mimeType})`);
 
-    const body = fetchFileJSON(file, auth);
+    const body = await fetchFileJSON(file, auth);
     if (body === undefined)
         return;
 

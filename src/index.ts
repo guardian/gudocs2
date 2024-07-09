@@ -58,6 +58,13 @@ export const scheduleHandler = async (
 	return await doSchedule()
 };
 
+export const doPublish = async (fileId: string, test: boolean): Promise<string> => {
+	// todo: this should return HTML rather than JSON
+	const auth = await getAuth();
+	const config = await getConfig();
+	return await update({ fetchAll: false, fileIds: [fileId], prod: !test }, config, auth).then(() => "File published")
+};
+
 export const publishHandler = async (
 	event: APIGatewayProxyEvent,
 	context: APIGatewayEventRequestContext,
@@ -74,7 +81,7 @@ export const publishHandler = async (
 	if (!fileId) {
 		throw new Error("File ID not found")
 	}
-	return await update({ fetchAll: false, fileIds: [fileId], prod: !test }, config, auth).then(() => "File published")
+	return doPublish(fileId, !!test)
 };
 
 export interface DocumentInfo {
