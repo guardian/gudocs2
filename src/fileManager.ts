@@ -147,29 +147,34 @@ export async function update({fetchAll = false, fileIds = [], prod = false}: { f
         guFiles = unfilteredFiles.filter(notEmpty); // filter any broken/unrecognized
     }
 
-    const promises = guFiles.map(fileJson => {
-        return fileUpdate(prod, config, auth, fileJson)
-            .then(() => undefined)
-            .catch(err => {
-                console.error('Failed to update', fileJson.metaData.id, fileJson.metaData.title)
-                console.error(err);
-                return fileJson;
-            });
-    });
+    const updatedJson: FileJSON[] = await Promise.all(
+        guFiles.map(fileJson => {
+            return fileUpdate(prod, config, auth, fileJson)
+                .then(() => ({
+                    ...fileJson,
+                    lastUploadProd: prod ? fileJson.metaData.modifiedDate : fileJson.lastUploadProd,
+                    lastUploadTest: fileJson.metaData.modifiedDate,
+                }))
+                .catch(err => {
+                    console.error('Failed to upload file', fileJson.metaData.id, fileJson.metaData.title)
+                    console.error(err);
+                    return fileJson;
+                })
+                .then((fileJson) =>
+                    fetchDomainPermissions(fileJson, auth, config.require_domain_permissions, config.client_email).then((perm) => ({
+                        ...fileJson,
+                        domainPermissions: perm,
+                    }))
+                )
+                .catch(err => {
+                    console.error(`Failed fetch domain permissions for ${fileJson.metaData.id} - ${fileJson.metaData.title}`)
+                    console.error(err);
+                    return fileJson;
+                })
+        })
+    );
 
-    const withDomainPermissions = await Promise.all(guFiles.map((fileJson) =>
-        fetchDomainPermissions(fileJson, auth, config.require_domain_permissions, config.client_email).then((perm) => ({
-            ...fileJson,
-            domainPermissions: perm,
-        }))
-    ))
-
-    const fails = (await Promise.all(promises)).filter(notEmpty);
-    if (fails.length > 0) {
-        console.error('The following updates failed');
-        fails.forEach(fail => console.error(`\t${fail.metaData.id} ${fail.metaData.title}`));
-    }
     console.log("Storing file metadata")
-    return await saveGuFiles(withDomainPermissions);
+    return await saveGuFiles(updatedJson);
 }
 //}

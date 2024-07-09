@@ -37,9 +37,9 @@ interface FileProperties {
 }
 
 export interface FileJSON {
-    lastUploadTest?: unknown;
+    lastUploadTest?: string | null;
     metaData: drive_v2.Schema$File;
-    lastUploadProd?: unknown;
+    lastUploadProd?: string | null;
     domainPermissions?: string;
     properties?: FileProperties;
 }
