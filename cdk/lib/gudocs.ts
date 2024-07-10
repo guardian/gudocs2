@@ -43,7 +43,7 @@ export class GuDocs extends GuStack {
 		const serverlessExpressLambda = new GuLambdaFunction(this, "serverless-express", {
 			handler: "dist/lambda/lambda.handler",
 			functionName: `gudocs-serverless-express-${this.stage}`,
-			app: `${app}-get-documents`,
+			app: `${app}-serverless-express`,
 			...sharedLambdaProps,			
 		});
 
