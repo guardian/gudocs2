@@ -12,7 +12,6 @@ import type { Config} from './guFile';
 import { isProdCurrent, isTestCurrent, s3Url } from './guFile';
 import { index } from './templates';
 import { style } from './templates/style';
-import { numberOrZero } from './util';
 
 interface GoogleAccountDetails {
 	client_email: string;
