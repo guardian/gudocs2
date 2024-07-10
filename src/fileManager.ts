@@ -1,11 +1,12 @@
-import { Config, FileJSON, fetchDomainPermissions, updateFileInS3 } from './guFile'
-import * as drive from './drive'
-import { JWT } from 'google-auth-library'
-import { AttributeValue, DynamoDB } from "@aws-sdk/client-dynamodb";
+import { DynamoDB } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
+import type { JWT } from 'google-auth-library'
 import { standardAwsConfig } from './awsIntegration';
 import { DYNAMODB_TABLE } from './constants';
-import { DriveFile } from './drive';
+import * as drive from './drive'
+import type { DriveFile } from './drive';
+import { fetchDomainPermissions, updateFileInS3 } from './guFile'
+import type { Config, FileJSON} from './guFile';
 import { notEmpty } from './util';
 
 export interface State {
@@ -22,8 +23,8 @@ export async function getStateDb(): Promise<State> {
             "key": "config"
         }
     })
-    if (result.Item && result.Item.lastChangeId && result.Item.lastSaved) {
-        return { lastChangeId: result.Item.lastChangeId, lastSaved: new Date(result.Item.lastSaved) };    
+    if (result.Item?.['lastChangeId'] && result.Item['lastSaved']) {
+        return { lastChangeId: result.Item['lastChangeId'], lastSaved: new Date(result.Item['lastSaved']) };    
     } else {
         return { lastChangeId: 0, lastSaved: new Date('1900-01-01') };
     }
@@ -53,14 +54,14 @@ async function getGuFile(id: string): Promise<FileJSON | null> {
     })
 
     if (result.Item) {
-        return result.Item.file as FileJSON
+        return result.Item['file'] as FileJSON
     } else {
         return null
     }
 }
 
 interface PaginatedResult<T> {
-    items: Array<T>;
+    items: T[];
     token: string;
 }
 export async function getAllGuFiles(start?: number): Promise<PaginatedResult<FileJSON>> {
@@ -82,7 +83,7 @@ export async function getAllGuFiles(start?: number): Promise<PaginatedResult<Fil
 
     const items = results.Items
     return {
-        items: items ? items.map((item) => item.file as FileJSON) : [],
+        items: items ? items.map((item) => item['file'] as FileJSON) : [],
         token
     }
 }
@@ -104,11 +105,11 @@ async function saveGuFile(file: FileJSON): Promise<boolean> {
     return true;
 }
 
-async function saveGuFiles(files: Array<FileJSON>): Promise<Array<boolean>> {
+async function saveGuFiles(files: FileJSON[]): Promise<boolean[]> {
     return Promise.all(files.map(saveGuFile))
 }
 
-async function enrichDriveFilesFromCache(driveFiles: Array<DriveFile>): Promise<Array<FileJSON>> {
+async function enrichDriveFilesFromCache(driveFiles: DriveFile[]): Promise<FileJSON[]> {
     return (await Promise.all(driveFiles.map(metaData => {
         return getGuFile(metaData.id).then((fileCache) => {
             return {
@@ -119,7 +120,7 @@ async function enrichDriveFilesFromCache(driveFiles: Array<DriveFile>): Promise<
     })));
 }
 
-async function updateFiles(guFiles: Array<FileJSON>, prod: boolean, config: Config, auth: JWT): Promise<Array<FileJSON>> {
+async function updateFiles(guFiles: FileJSON[], prod: boolean, config: Config, auth: JWT): Promise<FileJSON[]> {
     return await Promise.all(
         guFiles.map(fileJson => {
             const id = fileJson.metaData.id;

@@ -1,14 +1,15 @@
-import {
-	APIGatewayProxyEvent,
+import type {
 	APIGatewayEventRequestContext,
 	APIGatewayProxyCallback,
+	APIGatewayProxyEvent,
 } from 'aws-lambda';
-import { State, getAllGuFiles, getStateDb, publishFile, updateChanged } from './fileManager';
-
 import { google } from 'googleapis'
-import { configPromiseGetter, secretPromiseGetter } from './awsIntegration';
-import { Config, isProdCurrent, isTestCurrent, s3Url } from './guFile';
 import { renderToString } from 'react-dom/server';
+import { configPromiseGetter, secretPromiseGetter } from './awsIntegration';
+import type { State} from './fileManager';
+import { getAllGuFiles, getStateDb, publishFile, updateChanged } from './fileManager';
+import type { Config} from './guFile';
+import { isProdCurrent, isTestCurrent, s3Url } from './guFile';
 import { index } from './templates';
 import { style } from './templates/style';
 
@@ -96,7 +97,7 @@ interface Response {
 	token: string;
 	dev: string | undefined;
 	state: State;
-	files: Array<DocumentInfo>;
+	files: DocumentInfo[];
 }
 
 export async function renderDashboard() {

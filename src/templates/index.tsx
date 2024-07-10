@@ -1,7 +1,7 @@
 import React from 'react';
-import { DocumentInfo } from '..';
+import type { DocumentInfo } from '..';
 
-export const index = (css: string, lastSaved: string, email: string, domainPermissions: string, files: Array<DocumentInfo>, baseUrl: string) => <html>
+export const index = (css: string, lastSaved: string, email: string, domainPermissions: string, files: DocumentInfo[], baseUrl: string) => <html>
 <head>
 	<title>Guardian Visuals - docs</title>
 	<style type="text/css">{ css }</style>

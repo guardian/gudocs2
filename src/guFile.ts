@@ -1,11 +1,11 @@
-import archieml from 'archieml'
-import Papa from 'papaparse'
-import * as drive from './drive'
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { delay } from './util'
-import { drive_v2, sheets_v4 } from 'googleapis';
-import { JWT } from 'google-auth-library'
+import archieml from 'archieml'
+import type { JWT } from 'google-auth-library'
+import type { drive_v2, sheets_v4 } from 'googleapis';
+import Papa from 'papaparse'
 import { s3AwsConfig } from './awsIntegration';
+import * as drive from './drive'
+import { delay } from './util'
 
 export interface Config {
     testFolder: string;
@@ -25,9 +25,9 @@ interface FileProperties {
 
 export interface FileJSON {
     metaData: drive.DriveFile;
-    lastUploadTest?: string | null;
-    lastUploadProd?: string | null;
-    domainPermissions?: string;
+    lastUploadTest?: string | null | undefined;
+    lastUploadProd?: string | null | undefined;
+    domainPermissions?: string | undefined;
     properties?: FileProperties;
 }
 
@@ -46,7 +46,7 @@ export function s3Url(file: FileJSON, s3domain: string, testFolder: string) {
 export async function fetchDomainPermissions(file: FileJSON, auth: JWT, requiredDomain: string, client_email: string): Promise<string> {
     const perms = await drive.fetchFilePermissions(file.metaData.id, auth);
     const domainPermission = (perms.data.items || []).find(i => i.name === requiredDomain)
-    if (domainPermission && domainPermission.role) {
+    if (domainPermission?.role) {
         return domainPermission.role;
     } else if((perms.data.items || []).find(i => i.emailAddress === client_email)) {
         return 'none';
@@ -55,7 +55,7 @@ export async function fetchDomainPermissions(file: FileJSON, auth: JWT, required
     }
 }
 
-async function uploadToS3(body: Object, prod: Boolean, s3bucket: string, title: string, id: string, folder: string): Promise<void> {
+async function uploadToS3(body: Object, prod: boolean, s3bucket: string, title: string, id: string, folder: string): Promise<void> {
     const uploadPath = `${folder}/${id}.json` 
 
     const command = new PutObjectCommand({
@@ -76,12 +76,12 @@ async function uploadToS3(body: Object, prod: Boolean, s3bucket: string, title: 
     }
 }
 
-export async function updateFileInS3(publish: Boolean, config: Config, auth: JWT, file: FileJSON): Promise<void> {
+export async function updateFileInS3(publish: boolean, config: Config, auth: JWT, file: FileJSON): Promise<void> {
     console.log(`Fetching ${file.metaData.id} ${file.metaData.title} (${file.metaData.mimeType})`);
 
     const body = await fetchFileJSON(file, auth);
     if (body === undefined || body === null)
-        throw `Failed to fetch ${file.metaData.id} ${file.metaData.title}`;
+        {throw `Failed to fetch ${file.metaData.id} ${file.metaData.title}`;}
 
     console.log(`Uploading ${file.metaData.id} ${file.metaData.title} (${file.metaData.mimeType}) to S3 [test]`);
     await uploadToS3(body, false, config.s3bucket, file.metaData.title, file.metaData.id, config.testFolder);
@@ -92,8 +92,8 @@ export async function updateFileInS3(publish: Boolean, config: Config, auth: JWT
 }
 
 function cleanRaw(title: string, s: string) {
-    if (title.startsWith('[HTTP]')) return s;
-    else return s.replace(/http:\/\//g, 'https://');
+    if (title.startsWith('[HTTP]')) {return s;}
+    else {return s.replace(/http:\/\//g, 'https://');}
 }
 
 async function fetchFileJSON(file: FileJSON, auth: JWT): Promise<Object> {
@@ -130,7 +130,7 @@ async function fetchSheetJSON(sheet: sheets_v4.Schema$Sheet, exportLinks: drive_
 
 async function fetchSpreadsheetJSON(file: FileJSON, auth: JWT) {
     const spreadsheet = await drive.getSpreadsheet(file.metaData.id, auth);
-    var ms = 0;
+    let ms = 0;
     const delays = spreadsheet.data.sheets?.map((sheet, n) => {
         ms += n > delayCutoff ? delayMax : delayInitial * Math.pow(delayExp, n);
         return delay(ms, () => fetchSheetJSON(sheet, file.metaData.exportLinks, file.metaData.id, file.metaData.title, auth));
@@ -138,7 +138,7 @@ async function fetchSpreadsheetJSON(file: FileJSON, auth: JWT) {
     try {
         const sheetJSONs = await Promise.all(delays.map(d => d.promise));
         file.properties = {
-            isTable: sheetJSONs.findIndex(sheetJSON => sheetJSON.tableDataSheet !== undefined) > -1
+            isTable: sheetJSONs.findIndex(sheetJSON => sheetJSON['tableDataSheet'] !== undefined) > -1
         }
 
         return {'sheets': Object.assign({}, ...sheetJSONs)};

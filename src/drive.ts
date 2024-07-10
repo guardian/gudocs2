@@ -1,6 +1,7 @@
-import { drive_v2, google } from 'googleapis'
-import { JWT } from 'google-auth-library'
 import type { GaxiosPromise } from 'gaxios'
+import type { JWT } from 'google-auth-library'
+import type { drive_v2} from 'googleapis';
+import { google } from 'googleapis'
 import { notEmpty } from './util';
 
 const drive = google.drive('v2');
@@ -13,11 +14,11 @@ function isDriveFile(file: drive_v2.Schema$File): file is DriveFile {
 }
 
 export interface ChangedFiles {
-    items: Array<DriveFile>;
+    items: DriveFile[];
     largestChangeId: number;
 }
 
-function changedFiles(changes: drive_v2.Schema$Change[] | undefined): Array<DriveFile> {
+function changedFiles(changes: drive_v2.Schema$Change[] | undefined): DriveFile[] {
     return changes?.map(item => item.file).filter(notEmpty).filter(isDriveFile) || []
 }
 
@@ -26,7 +27,7 @@ export async function fetchAllChanges(pageToken: string | undefined = undefined,
     const page = await drive.changes.list(options);
 
     if (page.data.nextPageToken) {
-        let nextPage = await fetchAllChanges(page.data.nextPageToken, auth);
+        const nextPage = await fetchAllChanges(page.data.nextPageToken, auth);
         const pageLargestChangeId = Number(page.data.largestChangeId) || 0;
         const nextPageLargestChangeId = Number(nextPage.largestChangeId) || 0;
         return {
@@ -58,7 +59,7 @@ export function getSpreadsheet(spreadsheetId: string, auth: JWT) {
     return sheets.spreadsheets.get({ auth, spreadsheetId })
 }
 
-export async function getDoc(fileId: string, auth: JWT): GaxiosPromise<string>  {
+export function getDoc(fileId: string, auth: JWT): GaxiosPromise<string>  {
     return drive.files.export({
         auth,
         fileId: fileId,
