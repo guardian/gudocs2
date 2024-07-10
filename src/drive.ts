@@ -10,19 +10,19 @@ import { notEmpty } from './util';
 const drive = google.drive('v2');
 const sheets = google.sheets('v4');
 
-export type DriveFileWithId = drive_v2.Schema$File & { id: string };
+export type DriveFile = drive_v2.Schema$File & { id: string } & { title: string };
 
-function hasId(file: drive_v2.Schema$File): file is DriveFileWithId {
-    return notEmpty(file.id)
+function isDriveFile(file: drive_v2.Schema$File): file is DriveFile {
+    return notEmpty(file.id) && notEmpty(file.title)
 }
 
 export interface ChangedFiles {
-    items: Array<DriveFileWithId>;
+    items: Array<DriveFile>;
     largestChangeId: number;
 }
 
-function changedFiles(changes: drive_v2.Schema$Change[] | undefined): Array<DriveFileWithId> {
-    return changes?.map(item => item.file).filter(notEmpty).filter(hasId) || []
+function changedFiles(changes: drive_v2.Schema$Change[] | undefined): Array<DriveFile> {
+    return changes?.map(item => item.file).filter(notEmpty).filter(isDriveFile) || []
 }
 
 export async function fetchAllChanges(pageToken: string | undefined = undefined, auth: JWT): Promise<ChangedFiles> {

@@ -24,7 +24,7 @@ interface FileProperties {
 }
 
 export interface FileJSON {
-    metaData: drive_v2.Schema$File & { id: string };
+    metaData: drive.DriveFile;
     lastUploadTest?: string | null;
     lastUploadProd?: string | null;
     domainPermissions?: string;
@@ -40,11 +40,11 @@ export function isProdCurrent(file: FileJSON) {
 }
 
 export function s3Url(file: FileJSON, s3domain: string, testFolder: string) { 
-    return `${s3domain}/${testFolder}/${file.metaData.id || ""}.json`
+    return `${s3domain}/${testFolder}/${file.metaData.id}.json`
 }
 
 export async function fetchDomainPermissions(file: FileJSON, auth: JWT, requiredDomain: string, client_email: string): Promise<string> {
-    const perms = await drive.fetchFilePermissions(file.metaData.id || "", auth);
+    const perms = await drive.fetchFilePermissions(file.metaData.id, auth);
     const domainPermission = (perms.data.items || []).find(i => i.name === requiredDomain)
     if (domainPermission && domainPermission.role) {
         return domainPermission.role;
@@ -84,10 +84,10 @@ export async function updateFileInS3(publish: Boolean, config: Config, auth: JWT
         throw `Failed to fetch ${file.metaData.id} ${file.metaData.title}`;
 
     console.log(`Uploading ${file.metaData.id} ${file.metaData.title} (${file.metaData.mimeType}) to S3 [test]`);
-    await uploadToS3(body, false, config.s3bucket, file.metaData.title || "", file.metaData.id || "", config.testFolder);
+    await uploadToS3(body, false, config.s3bucket, file.metaData.title, file.metaData.id, config.testFolder);
     if (publish) {
         console.log(`Uploading ${file.metaData.id} ${file.metaData.title} (${file.metaData.mimeType}) to S3 [prod]`);
-        await uploadToS3(body, true, config.s3bucket, file.metaData.title || "", file.metaData.id || "", config.prodFolder)
+        await uploadToS3(body, true, config.s3bucket, file.metaData.title, file.metaData.id, config.prodFolder)
     }
 }
 
@@ -98,7 +98,7 @@ function cleanRaw(title: string, s: string) {
 
 async function fetchFileJSON(file: FileJSON, auth: JWT): Promise<Object> {
     if (file.metaData.mimeType === 'application/vnd.google-apps.document') {
-        return fetcDocJSON(file.metaData.id || "", file.metaData.title || "", auth);
+        return fetcDocJSON(file.metaData.id, file.metaData.title, auth);
     } else if (file.metaData.mimeType === 'application/vnd.google-apps.spreadsheet') {
         return fetchSpreadsheetJSON(file, auth);
     } else {
@@ -129,11 +129,11 @@ async function fetchSheetJSON(sheet: sheets_v4.Schema$Sheet, exportLinks: drive_
 }
 
 async function fetchSpreadsheetJSON(file: FileJSON, auth: JWT) {
-    const spreadsheet = await drive.getSpreadsheet(file.metaData.id || "", auth);
+    const spreadsheet = await drive.getSpreadsheet(file.metaData.id, auth);
     var ms = 0;
     const delays = spreadsheet.data.sheets?.map((sheet, n) => {
         ms += n > delayCutoff ? delayMax : delayInitial * Math.pow(delayExp, n);
-        return delay(ms, () => fetchSheetJSON(sheet, file.metaData.exportLinks, file.metaData.id || "", file.metaData.title || "", auth));
+        return delay(ms, () => fetchSheetJSON(sheet, file.metaData.exportLinks, file.metaData.id, file.metaData.title, auth));
     }) || [];
     try {
         const sheetJSONs = await Promise.all(delays.map(d => d.promise));

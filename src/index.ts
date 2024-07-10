@@ -128,8 +128,8 @@ export async function readDocuments(lastModified: number | undefined, dev: strin
 		urlTest: s3Url(file, config.s3domain, config.testFolder),
 		isProdCurrent: isProdCurrent(file),
 		urlProd: s3Url(file, config.s3domain, config.prodFolder),
-		id: file.metaData.id || "",
-		title: file.metaData.title || "",
+		id: file.metaData.id,
+		title: file.metaData.title,
 		lastModifyingUserName: file.metaData.lastModifyingUserName,
 	})
 	})

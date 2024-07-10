@@ -5,7 +5,7 @@ import { AttributeValue, DynamoDB } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
 import { standardAwsConfig } from './awsIntegration';
 import { DYNAMODB_TABLE } from './constants';
-import { DriveFileWithId } from './drive';
+import { DriveFile } from './drive';
 import { notEmpty } from './util';
 
 export interface State {
@@ -108,7 +108,7 @@ async function saveGuFiles(files: Array<FileJSON>): Promise<Array<boolean>> {
     return Promise.all(files.map(saveGuFile))
 }
 
-async function enrichDriveFilesFromCache(driveFiles: Array<DriveFileWithId>): Promise<Array<FileJSON>> {
+async function enrichDriveFilesFromCache(driveFiles: Array<DriveFile>): Promise<Array<FileJSON>> {
     return (await Promise.all(driveFiles.map(metaData => {
         return getGuFile(metaData.id).then((fileCache) => {
             return {
