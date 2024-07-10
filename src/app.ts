@@ -8,20 +8,21 @@ export const createApp = (): express.Application => {
     server.use(express.json());
     server.use(express.urlencoded({ extended: true }));
 
-    function serverError(response: express.Response) {
+    function serverError(err: unknown, response: express.Response) {
+        console.error(`Unhandled error: ${JSON.stringify(err)}`)
         response.status(500).json({ error: "Internal server error"})
     }
 
     server.get("/documents", (_, response) => {
         readDocuments(undefined, undefined).then((r) => {
             response.json(r);
-        }).catch(() => serverError(response))
+        }).catch((err) => serverError(err, response))
     });
 
     server.get("/", (_, response) => {
         renderDashboard().then((r) => {
             response.send(r);
-        }).catch(() => serverError(response))
+        }).catch((err) => serverError(err, response))
     });
 
     server.post("/schedule", (_, response) => {
@@ -29,7 +30,7 @@ export const createApp = (): express.Application => {
             response.json({
                 result: r
             })
-        }).catch(() => serverError(response))
+        }).catch((err) => serverError(err, response))
     });
 
     server.post("/publish", (request: express.Request<unknown, unknown, { id: string}>, response) => {
@@ -38,7 +39,7 @@ export const createApp = (): express.Application => {
             response.json({
                 result: r
             })
-        }).catch(() => serverError(response))
+        }).catch((err) => serverError(err, response))
     });
 
     return server
