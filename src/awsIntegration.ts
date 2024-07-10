@@ -6,7 +6,7 @@ const LOCAL_PROFILE = "interactives";
 
 const LOCAL_S3_PROFILE = "composer";
 
-export const IS_RUNNING_LOCALLY = process.env['LAMBDA_TASK_ROOT'] !== undefined;
+export const IS_RUNNING_LOCALLY = process.env['LAMBDA_TASK_ROOT'] === undefined;
 
 export const standardAwsConfig = {
   region: AWS_REGION,
