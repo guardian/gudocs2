@@ -123,20 +123,20 @@ async function fetchSheetJSON(sheet: sheets_v4.Schema$Sheet, exportLinks: drive_
     }
     const response = await drive.getSheet(id, auth) // sheet.properties.sheetId - is that the individual sheet rather than the Spreadsheet?
     const text = await response.data.text();
-    var csv = cleanRaw(title, text);
-    var json = Papa.parse(csv, {'header': sheet.properties?.title !== 'tableDataSheet'}).data;
+    const csv = cleanRaw(title, text);
+    const json = Papa.parse(csv, {'header': sheet.properties?.title !== 'tableDataSheet'}).data;
     return {[sheet.properties?.title || ""]: json};
 }
 
 async function fetchSpreadsheetJSON(file: FileJSON, auth: JWT) {
-    var spreadsheet = await drive.getSpreadsheet(file.metaData.id || "", auth);
+    const spreadsheet = await drive.getSpreadsheet(file.metaData.id || "", auth);
     var ms = 0;
     const delays = spreadsheet.data.sheets?.map((sheet, n) => {
         ms += n > delayCutoff ? delayMax : delayInitial * Math.pow(delayExp, n);
         return delay(ms, () => fetchSheetJSON(sheet, file.metaData.exportLinks, file.metaData.id || "", file.metaData.title || "", auth));
     }) || [];
     try {
-        var sheetJSONs = await Promise.all(delays.map(d => d.promise));
+        const sheetJSONs = await Promise.all(delays.map(d => d.promise));
         file.properties = {
             isTable: sheetJSONs.findIndex(sheetJSON => sheetJSON.tableDataSheet !== undefined) > -1
         }

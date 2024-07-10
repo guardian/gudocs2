@@ -7,8 +7,8 @@ import { JWT } from 'google-auth-library'
 import type { GaxiosPromise } from 'gaxios'
 import { notEmpty } from './util';
 
-var drive = google.drive('v2');
-var sheets = google.sheets('v4');
+const drive = google.drive('v2');
+const sheets = google.sheets('v4');
 
 export type DriveFileWithId = drive_v2.Schema$File & { id: string };
 
