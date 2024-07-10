@@ -1,6 +1,6 @@
 // import serverlessExpress from '@codegenie/serverless-express';
 import { default as express } from "express";
-import { doPublish, doSchedule, readDocuments, renderDashboard } from './index';
+import { doPublish, doSchedule, readDocuments, renderDashboard } from './actions';
 
 export const createApp = (): express.Application => {
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import type { DocumentInfo } from '..';
+import type { DocumentInfo } from '../actions';
 
 export const index = (css: string, lastSaved: string, email: string, domainPermissions: string, files: DocumentInfo[], baseUrl: string) => <html>
 <head>
