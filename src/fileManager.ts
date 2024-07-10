@@ -1,11 +1,13 @@
-import { Config, FileJSON, fetchDomainPermissions, updateFile } from './guFile'
-import { drive_v2 } from 'googleapis'
+import { Config, FileJSON, fetchDomainPermissions, updateFileInS3 } from './guFile'
 import * as drive from './drive'
 import { JWT } from 'google-auth-library'
 import { AttributeValue, DynamoDB } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
 import { standardAwsConfig } from './awsIntegration';
 import { DYNAMODB_TABLE } from './constants';
+import { drive_v2 } from 'googleapis';
+import { ChangedFiles, DriveFileWithId } from './drive';
+import { notEmpty } from './util';
 
 export interface State {
     lastChangeId: number;
@@ -109,49 +111,23 @@ async function saveGuFiles(files: Array<FileJSON>): Promise<Array<boolean>> {
     return Promise.all(files.map(saveGuFile))
 }
 
-
-function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
-    return value !== null && value !== undefined;
+async function enrichDriveFilesFromCache(driveFiles: Array<DriveFileWithId>): Promise<Array<FileJSON>> {
+    return (await Promise.all(driveFiles.map(metaData => {
+        return getGuFile(metaData.id).then((fileCache) => {
+            return {
+                ...fileCache,
+                metaData
+            }
+        })
+    })));
 }
 
-export async function update({fetchAll = false, fileIds = [], prod = false}: { fetchAll: boolean; fileIds: string[]; prod: boolean}, config: Config, auth: JWT): Promise<unknown> {
-    var guFiles: Array<FileJSON>;
-    if (fileIds.length > 0) {
-        guFiles = (await Promise.all(fileIds.map(getGuFile))).filter(notEmpty);
-    } else {
-        const db = await getStateDb();
-        const changeList = fetchAll ?
-            await drive.fetchAllChanges(undefined, auth) :
-            await drive.fetchRecentChanges(1 + Number(db.lastChangeId), auth);
-
-        console.log(`${changeList.items.length} changes. Largest ChangeId: ${changeList.largestChangeId}`);
-
-        await saveStateDb(changeList.largestChangeId);
-
-        const filesMetadata = changeList.items.map(change => change.file).filter((x) => x !== undefined)
-
-        const unfilteredFiles = await Promise.all(filesMetadata.map(metaData => {
-            if (metaData.id) {
-                return getGuFile(metaData.id).then((fileCache) => {
-                    if (fileCache) {
-                        fileCache.metaData = metaData
-                        return fileCache
-                    } else {
-                        return {metaData}
-                    }
-                })
-            } else {
-                return null;
-            }
-        }))
-        guFiles = unfilteredFiles.filter(notEmpty); // filter any broken/unrecognized
-    }
-
-    const updatedJson: FileJSON[] = await Promise.all(
+async function updateFiles(guFiles: Array<FileJSON>, prod: boolean, config: Config, auth: JWT): Promise<Array<FileJSON>> {
+    return await Promise.all(
         guFiles.map(fileJson => {
             const id = fileJson.metaData.id;
             const title = fileJson.metaData.title;
-            return updateFile(prod, config, auth, fileJson)
+            return updateFileInS3(prod, config, auth, fileJson)
                 .catch(err => {
                     console.error(`Failed to upload file ${id} - ${title}`)
                     console.error(err);
@@ -173,8 +149,26 @@ export async function update({fetchAll = false, fileIds = [], prod = false}: { f
                 )
         })
     );
-
-    console.log("Storing file metadata")
-    return await saveGuFiles(updatedJson);
 }
+
+export async function publishFile(fileId: string, config: Config, auth: JWT): Promise<unknown> {
+    const guFile = await getGuFile(fileId)
+    if (notEmpty(guFile)) {
+        const updatedJson = await updateFiles([guFile], true, config, auth)
+        return await saveGuFiles(updatedJson);
+    } else {
+        throw `File ${fileId} not found in cache`
+    }
+}
+
+export async function updateChanged(config: Config, auth: JWT): Promise<unknown> {
+    const state = await getStateDb()
+    const changes = await drive.fetchRecentChanges(1 + Number(state.lastChangeId), auth);
+    const guFiles = await enrichDriveFilesFromCache(changes.items);
+    const updatedJson = await updateFiles(guFiles, false, config, auth);
+    await saveGuFiles(updatedJson);
+    await saveStateDb(changes.largestChangeId);
+    return 
+}
+
 //}

@@ -38,7 +38,7 @@ interface FileProperties {
 
 export interface FileJSON {
     lastUploadTest?: string | null;
-    metaData: drive_v2.Schema$File;
+    metaData: drive_v2.Schema$File & { id: string };
     lastUploadProd?: string | null;
     domainPermissions?: string;
     properties?: FileProperties;
@@ -89,7 +89,7 @@ async function uploadToS3(body: Object, prod: Boolean, s3bucket: string, title: 
     }
 }
 
-export async function updateFile(publish: Boolean, config: Config, auth: JWT, file: FileJSON): Promise<void> {
+export async function updateFileInS3(publish: Boolean, config: Config, auth: JWT, file: FileJSON): Promise<void> {
     console.log(`Fetching ${file.metaData.id} ${file.metaData.title} (${file.metaData.mimeType})`);
 
     const body = await fetchFileJSON(file, auth);

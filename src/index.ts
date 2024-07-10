@@ -3,7 +3,7 @@ import {
 	APIGatewayEventRequestContext,
 	APIGatewayProxyCallback,
 } from 'aws-lambda';
-import { State, getAllGuFiles, getStateDb, update } from './fileManager';
+import { State, getAllGuFiles, getStateDb, publishFile, updateChanged } from './fileManager';
 
 import { google } from 'googleapis'
 import { configPromiseGetter, secretPromiseGetter } from './awsIntegration';
@@ -41,7 +41,7 @@ const getConfig = async (): Promise<Config> => {
 export const doSchedule = async (): Promise<string> => {
 	const auth = await getAuth();
 	const config = await getConfig();
-	return await update({ fetchAll: false, fileIds: [], prod: false }, config, auth).then(() => "Schedule done");
+	return await updateChanged(config, auth).then(() => "Schedule done");
 };
 
 export const scheduleHandler = async (
@@ -52,11 +52,11 @@ export const scheduleHandler = async (
 	return await doSchedule()
 };
 
-export const doPublish = async (fileId: string, test: boolean): Promise<string> => {
+export const doPublish = async (fileId: string): Promise<string> => {
 	// todo: this should return HTML rather than JSON
 	const auth = await getAuth();
 	const config = await getConfig();
-	return await update({ fetchAll: false, fileIds: [fileId], prod: !test }, config, auth).then(() => "File published")
+	return await publishFile(fileId, config, auth).then(() => "File published")
 };
 
 export const publishHandler = async (
@@ -70,12 +70,11 @@ export const publishHandler = async (
 		throw new Error("Method not allowed")
 	}
 	const body = event.body ? JSON.parse(event.body) : {};
-	const test = (event.queryStringParameters || {})["test"];
 	const fileId = body["id"];
 	if (!fileId) {
 		throw new Error("File ID not found")
 	}
-	return doPublish(fileId, !!test)
+	return doPublish(fileId)
 };
 
 export interface DocumentInfo {

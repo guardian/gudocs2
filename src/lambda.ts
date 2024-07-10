@@ -31,7 +31,7 @@ server.post("/schedule", (_, response) => {
 
 server.post("/publish", (request, response) => {
     const fileId = request.body.id;
-    doPublish(fileId, false).then((r) => {
+    doPublish(fileId).then((r) => {
         response.json({
             result: r
         })
