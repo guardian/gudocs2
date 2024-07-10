@@ -40,9 +40,9 @@ export class GuDocs extends GuStack {
 			environment,
 		};
 
-		const getDocumentsLambda = new GuLambdaFunction(this, "get-documents", {
-			handler: "dist/lambda/index.getDocuments",
-			functionName: `gudocs-get-document-${this.stage}`,
+		const serverlessExpressLambda = new GuLambdaFunction(this, "serverless-express", {
+			handler: "dist/lambda/lambda.handler",
+			functionName: `gudocs-serverless-express-${this.stage}`,
 			app: `${app}-get-documents`,
 			...sharedLambdaProps,			
 		});
@@ -53,36 +53,28 @@ export class GuDocs extends GuStack {
 			`arn:aws:ssm:${this.region}:${this.account}:parameter/${this.stage}/${this.stack}/${app}/*`,
 			],
 		})
-		getDocumentsLambda.addToRolePolicy(sharedParametersPolicy)
-
-		const publishLambda = new GuLambdaFunction(this, "publish", {
-			handler: "dist/lambda/index.publishHandler",
-			functionName: `gudocs-publish-${this.stage}`,
-			app: `${app}-publish`,
-			...sharedLambdaProps,
-		});
-
-		publishLambda.addToRolePolicy(sharedParametersPolicy)
+		serverlessExpressLambda.addToRolePolicy(sharedParametersPolicy)
 
 		new GuApiGatewayWithLambdaByPath(this, {
 			app: "testing",
 			monitoringConfiguration: { noMonitoring: true },
 			targets: [
 				{
-				path: "/documents",
+				path: "/",
 				httpMethod: "GET",
-				lambda: getDocumentsLambda,
+				lambda: serverlessExpressLambda,
 				},
 				{
 				path: "/publish",
 				httpMethod: "POST",
-				lambda: publishLambda,
+				lambda: serverlessExpressLambda,
 				},
 			],
 		});
 	
-		const scheduledLambda = new GuScheduledLambda(this, APP_NAME, { // NB this lambs is called interactives-CODE-gu-docs-gudocs860B986D-SIKViKuP8A6S it would be nice for it to have a better name
+		const scheduledLambda = new GuScheduledLambda(this, APP_NAME, {
 			handler: 'dist/lambda/index.scheduleHandler',
+			functionName: `gudocs-schedule-${this.stage}`,
 			rules: [
 				{
 					schedule: Schedule.cron({ hour: '10', minute: '00', weekDay: '2' }),
@@ -117,7 +109,6 @@ export class GuDocs extends GuStack {
 		});
 
 		table.grantReadWriteData(scheduledLambda);
-		table.grantReadWriteData(publishLambda);
-		table.grantReadData(getDocumentsLambda);
+		table.grantReadWriteData(serverlessExpressLambda);
 	}
 }
