@@ -545,7 +545,7 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
           },
         },
         "FunctionName": "gudocs-schedule-TEST",
-        "Handler": "dist/lambda/index.scheduleHandler",
+        "Handler": "index.scheduleHandler",
         "LoggingConfig": {
           "LogFormat": "JSON",
         },
@@ -916,7 +916,7 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
           },
         },
         "FunctionName": "gudocs-serverless-express-TEST",
-        "Handler": "dist/lambda/lambda.handler",
+        "Handler": "index.handler",
         "LoggingConfig": {
           "LogFormat": "JSON",
         },

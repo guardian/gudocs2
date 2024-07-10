@@ -41,7 +41,6 @@ export class GuDocs extends GuStack {
 		};
 
 		const serverlessExpressLambda = new GuLambdaFunction(this, "serverless-express", {
-			handler: "dist/lambda/lambda.handler",
 			functionName: `gudocs-serverless-express-${this.stage}`,
 			app: `${app}-serverless-express`,
 			...sharedLambdaProps,			
@@ -73,7 +72,6 @@ export class GuDocs extends GuStack {
 		});
 	
 		const scheduledLambda = new GuScheduledLambda(this, APP_NAME, {
-			handler: 'dist/lambda/index.scheduleHandler',
 			functionName: `gudocs-schedule-${this.stage}`,
 			rules: [
 				{
