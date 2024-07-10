@@ -95,7 +95,7 @@ export interface DocumentInfo {
 	isTestCurrent: boolean | undefined;
 	urlTest: string;
 	isProdCurrent: boolean | undefined;
-	urlProd: string;
+	urlProd: string | undefined;
 	id: string;
 	title: string;
 	lastModifyingUserName: string | null | undefined;
