@@ -68,24 +68,6 @@ export const doPublish = async (fileId: string): Promise<string> => {
 	return await publishFile(fileId, config, auth).then(() => "File published")
 };
 
-export const publishHandler = async (
-	event: APIGatewayProxyEvent,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- part of lambda API
-	context: APIGatewayEventRequestContext,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- part of lambda API
-	callback: APIGatewayProxyCallback,
-): Promise<string> => {
-	if (event.httpMethod !== "POST") {
-		throw new Error("Method not allowed")
-	}
-	const body = event.body ? JSON.parse(event.body) : {}; // todo: fix this to be a form post
-	const fileId = body["id"];
-	if (!fileId) {
-		throw new Error("File ID not found")
-	}
-	return doPublish(fileId)
-};
-
 export interface DocumentInfo {
 	domainPermissions: string;
 	iconLink: string | null | undefined;
@@ -149,15 +131,3 @@ export async function readDocuments(lastModified: number | undefined, dev: strin
 		files
 	}
 }
-
-export const getDocuments = async (
-	event: APIGatewayProxyEvent,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- part of lambda API
-	context: APIGatewayEventRequestContext,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- part of lambda API
-	callback: APIGatewayProxyCallback,
-): Promise<Response> => {
-	const lastModified = numberOrZero(event.queryStringParameters?.["lastModified"])
-	const dev = event.queryStringParameters?.["dev"];
-	return readDocuments(lastModified, dev);
-};
