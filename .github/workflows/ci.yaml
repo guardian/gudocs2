@@ -41,7 +41,7 @@ jobs:
             cdk.out:
               - cdk/cdk.out/gudocs2-CODE.template.json
               - cdk/cdk.out/gudocs2-PROD.template.json
-            gudocs-serverless:
+            gudocs-serverless-express:
               - cdk/gudocs2.zip
             gudocs-schedule:
               - cdk/gudocs2.zip
