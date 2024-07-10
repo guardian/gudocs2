@@ -1,4 +1,3 @@
-// import gu from '@guardian/koa-gu'
 import archieml from 'archieml'
 import Papa from 'papaparse'
 import * as drive from './drive'
@@ -7,18 +6,6 @@ import { delay } from './util'
 import { drive_v2, sheets_v4 } from 'googleapis';
 import { JWT } from 'google-auth-library'
 import { s3AwsConfig } from './awsIntegration';
-
-// import createLimiter from './limiter'
-
-// var s3limiter = createLimiter('s3', 50);
-
-// interface Metadata {
-//     id: string;
-//     title: string;
-//     alternateLink: string;
-//     modifiedDate: string; // might be number?
-//     mimeType: string;
-// }
 
 export interface Config {
     testFolder: string;
@@ -37,8 +24,8 @@ interface FileProperties {
 }
 
 export interface FileJSON {
-    lastUploadTest?: string | null;
     metaData: drive_v2.Schema$File & { id: string };
+    lastUploadTest?: string | null;
     lastUploadProd?: string | null;
     domainPermissions?: string;
     properties?: FileProperties;

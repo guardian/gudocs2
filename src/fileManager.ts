@@ -5,8 +5,7 @@ import { AttributeValue, DynamoDB } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
 import { standardAwsConfig } from './awsIntegration';
 import { DYNAMODB_TABLE } from './constants';
-import { drive_v2 } from 'googleapis';
-import { ChangedFiles, DriveFileWithId } from './drive';
+import { DriveFileWithId } from './drive';
 import { notEmpty } from './util';
 
 export interface State {
@@ -59,8 +58,6 @@ async function getGuFile(id: string): Promise<FileJSON | null> {
         return null
     }
 }
-
-type DynamoRecord =  Record<string, AttributeValue>;
 
 interface PaginatedResult<T> {
     items: Array<T>;
