@@ -74,26 +74,26 @@ export const index = (css: string, lastSaved: string, email: string, domainPermi
 			<tbody>
 				{ files.map((file) => 
 				<tr key={file.id} className={`domainpermissions--${file.domainPermissions}`}>
-					<td><img src={ file.iconLink || undefined }/>{ file.title }</td>
-					<td title={ file.modifiedDate || undefined }>{ file.modifiedDate }</td>
+					<td><img src={ file.iconLink ?? undefined }/>{ file.title }</td>
+					<td title={ file.modifiedDate ?? undefined }>{ file.modifiedDate }</td>
 					<td>{ file.lastModifyingUserName }</td>
 					<td><span className={`permission permission--${file.domainPermissions}`}>{ file.domainPermissions }</span></td>
 					<td>
-						<a className="docs" href={ file.urlDocs || undefined }>docs</a> /
-						{ file.isTable ?
+						<a className="docs" href={ file.urlDocs ?? undefined }>docs</a> /
+						{ file.isTable === true ?
 							<><a className="table-embed" target="_blank" href={`https://interactive.guim.co.uk/atoms/2020/08/table-tool/embed/app/main.html?spreadsheet=${ file.id }`}>table url</a> /</>
 							: null
 						}
-						<a className={ file.isTestCurrent ? "current" : "old" }
+						<a className={ file.isTestCurrent === true ? "current" : "old" }
 							href={ file.urlTest }>test</a>
-						{ file.urlProd ?
-							<>/ <a className={ file.isProdCurrent ? "current" : "old" }
+						{ file.urlProd !== undefined ?
+							<>/ <a className={ file.isProdCurrent === true ? "current" : "old" }
 							     href={ file.urlProd }>
 								prod</a></>
 							: null }
 					</td>
 					<td>
-						{ !file.isProdCurrent ?
+						{ file.isProdCurrent !== true ?
 							<form method="POST" action={`${baseUrl}/publish`}>
 								<input type="hidden" name="id" value={ file.id } />
 								<button className="btn btn--blue">publish</button>
