@@ -1,9 +1,6 @@
 import serverlessExpress from '@codegenie/serverless-express';
 import { default as express } from "express";
 import { doPublish, doSchedule, readDocuments, renderDashboard } from './index';
-import { index } from './templates/index';
-import { renderToString } from 'react-dom/server';
-import { style } from './templates/style';
 
 const server = express();
 server.use(express.json());
@@ -37,7 +34,6 @@ server.post("/publish", (request, response) => {
         })
     })
 });
-
 
 process.on('uncaughtException', err => {
     console.log(err)
