@@ -48,7 +48,11 @@ export class GuDocs extends GuStack {
 		});
 
 		const sharedParametersPolicy = new PolicyStatement({
-			actions: ["ssm:GetParametersByPath"],
+			actions: [
+				"ssm:GetParametersByPath",
+				"ssm:GetParameters",
+				"ssm:GetParameter"
+			],
 			resources: [
 			`arn:aws:ssm:${this.region}:${this.account}:parameter/${this.stage}/${this.stack}/${app}/*`,
 			],

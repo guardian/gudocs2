@@ -788,7 +788,11 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
               },
             },
             {
-              "Action": "ssm:GetParametersByPath",
+              "Action": [
+                "ssm:GetParametersByPath",
+                "ssm:GetParameters",
+                "ssm:GetParameter",
+              ],
               "Effect": "Allow",
               "Resource": {
                 "Fn::Join": [
@@ -1094,7 +1098,11 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
               },
             },
             {
-              "Action": "ssm:GetParametersByPath",
+              "Action": [
+                "ssm:GetParametersByPath",
+                "ssm:GetParameters",
+                "ssm:GetParameter",
+              ],
               "Effect": "Allow",
               "Resource": {
                 "Fn::Join": [
