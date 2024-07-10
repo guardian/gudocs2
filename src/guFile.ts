@@ -68,16 +68,8 @@ export async function fetchDomainPermissions(file: FileJSON, auth: JWT, required
     }
 }
 
-function uploadToS3(body: Object, prod: Boolean, s3bucket: string, title: string, id: string, folder: string): Promise<unknown> {
+async function uploadToS3(body: Object, prod: Boolean, s3bucket: string, title: string, id: string, folder: string): Promise<void> {
     const uploadPath = `${folder}/${id}.json` 
-    const params = {
-        Bucket: s3bucket,
-        Key: uploadPath,
-        Body: JSON.stringify(body),
-        ACL: 'public-read',
-        ContentType: 'application/json',
-        CacheControl: prod ? 'max-age=30' : 'max-age=5'
-    }
 
     const command = new PutObjectCommand({
         Bucket: s3bucket,
@@ -89,31 +81,27 @@ function uploadToS3(body: Object, prod: Boolean, s3bucket: string, title: string
     });
     
     try {
-        return s3Client.send(command).then(_ => {
-    //        this[prod ? 'lastUploadProd' : 'lastUploadTest'] = this.metaData.modifiedDate // todo: store this somewhere
-            console.log(`Uploaded ${title} to ${uploadPath}`)
-        }).catch(err => {
-            console.error(`Call to S3 failed ${JSON.stringify(err)} ${JSON.stringify(params)}`);
-        })
+        await s3Client.send(command)
+        console.log(`Uploaded ${title} to ${uploadPath}`)
     } catch (err) {
-        console.error(`Call to S3 failed ${JSON.stringify(err)} ${JSON.stringify(params)}`);
-        return Promise.reject("Upload to S3 failed");
+        console.error(`Call to S3 failed ${JSON.stringify(err)}`);
+        throw "Upload to S3 failed";
     }
 }
 
-export async function fileUpdate(publish: Boolean, config: Config, auth: JWT, file: FileJSON) {
-    console.log(`Updating ${file.metaData.id} ${file.metaData.title} (${file.metaData.mimeType})`);
+export async function updateFile(publish: Boolean, config: Config, auth: JWT, file: FileJSON): Promise<void> {
+    console.log(`Fetching ${file.metaData.id} ${file.metaData.title} (${file.metaData.mimeType})`);
 
     const body = await fetchFileJSON(file, auth);
-    if (body === undefined)
-        return;
+    if (body === undefined || body === null)
+        throw `Failed to fetch ${file.metaData.id} ${file.metaData.title}`;
 
-    console.log(`Uploading ${file.metaData.id} ${file.metaData.title} (${file.metaData.mimeType}) to S3`);
-    const p = uploadToS3(body, false, config.s3bucket, file.metaData.title || "", file.metaData.id || "", config.testFolder);
-    if (publish && p) return p.then(() => 
-        uploadToS3(body, true, config.s3bucket, file.metaData.title || "", file.metaData.id || "", config.prodFolder)
-    );
-    return p;
+    console.log(`Uploading ${file.metaData.id} ${file.metaData.title} (${file.metaData.mimeType}) to S3 [test]`);
+    await uploadToS3(body, false, config.s3bucket, file.metaData.title || "", file.metaData.id || "", config.testFolder);
+    if (publish) {
+        console.log(`Uploading ${file.metaData.id} ${file.metaData.title} (${file.metaData.mimeType}) to S3 [prod]`);
+        await uploadToS3(body, true, config.s3bucket, file.metaData.title || "", file.metaData.id || "", config.prodFolder)
+    }
 }
 
 function cleanRaw(title: string, s: string) {

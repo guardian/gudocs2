@@ -1,4 +1,4 @@
-import { Config, FileJSON, fetchDomainPermissions, fileUpdate } from './guFile'
+import { Config, FileJSON, fetchDomainPermissions, updateFile } from './guFile'
 import { drive_v2 } from 'googleapis'
 import * as drive from './drive'
 import { JWT } from 'google-auth-library'
@@ -149,28 +149,28 @@ export async function update({fetchAll = false, fileIds = [], prod = false}: { f
 
     const updatedJson: FileJSON[] = await Promise.all(
         guFiles.map(fileJson => {
-            return fileUpdate(prod, config, auth, fileJson)
-                .then(() => ({
-                    ...fileJson,
-                    lastUploadProd: prod ? fileJson.metaData.modifiedDate : fileJson.lastUploadProd,
-                    lastUploadTest: fileJson.metaData.modifiedDate,
-                }))
+            const id = fileJson.metaData.id;
+            const title = fileJson.metaData.title;
+            return updateFile(prod, config, auth, fileJson)
                 .catch(err => {
-                    console.error('Failed to upload file', fileJson.metaData.id, fileJson.metaData.title)
+                    console.error(`Failed to upload file ${id} - ${title}`)
                     console.error(err);
-                    return fileJson;
+                    return;
                 })
-                .then((fileJson) =>
-                    fetchDomainPermissions(fileJson, auth, config.require_domain_permissions, config.client_email).then((perm) => ({
-                        ...fileJson,
-                        domainPermissions: perm,
-                    }))
+                .then(() =>
+                    fetchDomainPermissions(fileJson, auth, config.require_domain_permissions, config.client_email)
+                        .catch(err => {
+                            console.error(`Failed fetch domain permissions for ${id} - ${title}`)
+                            console.error(err);
+                            return fileJson.domainPermissions;
+                        })
+                        .then(perms => ({
+                            ...fileJson,
+                            lastUploadProd: prod ? fileJson.metaData.modifiedDate : fileJson.lastUploadProd,
+                            lastUploadTest: fileJson.metaData.modifiedDate,
+                            domainPermissions: perms,
+                        }))
                 )
-                .catch(err => {
-                    console.error(`Failed fetch domain permissions for ${fileJson.metaData.id} - ${fileJson.metaData.title}`)
-                    console.error(err);
-                    return fileJson;
-                })
         })
     );
 
