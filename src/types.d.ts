@@ -1,3 +1,3 @@
 declare module 'archieml' {
-    export function load(s: string): Object;
+    export function load(s: string): object;
 }

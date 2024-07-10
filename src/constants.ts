@@ -1,8 +1,8 @@
 export const APP = "gudocs";
 
-export const STAGE = process.env.STAGE || "DEV";
+export const STAGE = process.env['STAGE'] ?? "CODE";
 
-export const STACK = process.env.STACK || "interactives";
+export const STACK = process.env['STACK'] ?? "interactives";
 
 export const AWS_REGION = "eu-west-1";
 

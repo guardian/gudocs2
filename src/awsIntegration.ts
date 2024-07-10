@@ -6,7 +6,7 @@ const LOCAL_PROFILE = "interactives";
 
 const LOCAL_S3_PROFILE = "composer";
 
-export const IS_RUNNING_LOCALLY = !process.env['LAMBDA_TASK_ROOT'];
+export const IS_RUNNING_LOCALLY = process.env['LAMBDA_TASK_ROOT'] !== undefined;
 
 export const standardAwsConfig = {
   region: AWS_REGION,
@@ -34,7 +34,7 @@ const paramStorePromiseGetter =
       })
       .then((result) => {
         const value = result.Parameter?.Value;
-        if (!value) {
+        if (value === undefined) {
           throw Error(`Could not retrieve parameter value for '${Name}'`);
         }
         return value;

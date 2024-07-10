@@ -5,7 +5,7 @@ import type { drive_v2, sheets_v4 } from 'googleapis';
 import Papa from 'papaparse'
 import { s3AwsConfig } from './awsIntegration';
 import * as drive from './drive'
-import { delay } from './util'
+import { delay, notEmpty } from './util'
 
 export interface Config {
     testFolder: string;
@@ -45,17 +45,17 @@ export function s3Url(file: FileJSON, s3domain: string, testFolder: string) {
 
 export async function fetchDomainPermissions(file: FileJSON, auth: JWT, requiredDomain: string, client_email: string): Promise<string> {
     const perms = await drive.fetchFilePermissions(file.metaData.id, auth);
-    const domainPermission = (perms.data.items || []).find(i => i.name === requiredDomain)
-    if (domainPermission?.role) {
+    const domainPermission = (perms.data.items ?? []).find(i => i.name === requiredDomain)
+    if (typeof domainPermission?.role === "string") {
         return domainPermission.role;
-    } else if((perms.data.items || []).find(i => i.emailAddress === client_email)) {
+    } else if((perms.data.items ?? []).find(i => i.emailAddress === client_email) !== undefined) {
         return 'none';
     } else {
         return 'unknown';
     }
 }
 
-async function uploadToS3(body: Object, prod: boolean, s3bucket: string, title: string, id: string, folder: string): Promise<void> {
+async function uploadToS3(body: object, prod: boolean, s3bucket: string, title: string, id: string, folder: string): Promise<void> {
     const uploadPath = `${folder}/${id}.json` 
 
     const command = new PutObjectCommand({
@@ -80,8 +80,6 @@ export async function updateFileInS3(publish: boolean, config: Config, auth: JWT
     console.log(`Fetching ${file.metaData.id} ${file.metaData.title} (${file.metaData.mimeType})`);
 
     const body = await fetchFileJSON(file, auth);
-    if (body === undefined || body === null)
-        {throw `Failed to fetch ${file.metaData.id} ${file.metaData.title}`;}
 
     console.log(`Uploading ${file.metaData.id} ${file.metaData.title} (${file.metaData.mimeType}) to S3 [test]`);
     await uploadToS3(body, false, config.s3bucket, file.metaData.title, file.metaData.id, config.testFolder);
@@ -96,7 +94,7 @@ function cleanRaw(title: string, s: string) {
     else {return s.replace(/http:\/\//g, 'https://');}
 }
 
-async function fetchFileJSON(file: FileJSON, auth: JWT): Promise<Object> {
+async function fetchFileJSON(file: FileJSON, auth: JWT): Promise<object> {
     if (file.metaData.mimeType === 'application/vnd.google-apps.document') {
         return fetcDocJSON(file.metaData.id, file.metaData.title, auth);
     } else if (file.metaData.mimeType === 'application/vnd.google-apps.spreadsheet') {
@@ -106,7 +104,7 @@ async function fetchFileJSON(file: FileJSON, auth: JWT): Promise<Object> {
     }
 }
 
-async function fetcDocJSON(id: string, title: string, auth: JWT): Promise<Object> {
+async function fetcDocJSON(id: string, title: string, auth: JWT): Promise<object> {
     const doc = await drive.getDoc(id, auth);
     return archieml.load(cleanRaw(title, doc.data));
 }
@@ -118,14 +116,14 @@ const delayCutoff = 8; // After this many sheets, just wait delayMax
 const delayMax = 20000;
 
 async function fetchSheetJSON(sheet: sheets_v4.Schema$Sheet, exportLinks: drive_v2.Schema$File['exportLinks'], id: string, title: string, auth: JWT) {
-    if (!exportLinks) {
+    if (!notEmpty(exportLinks)) {
         throw new Error("Missing export links")
     }
     const response = await drive.getSheet(id, auth) // sheet.properties.sheetId - is that the individual sheet rather than the Spreadsheet?
     const text = await response.data.text();
     const csv = cleanRaw(title, text);
     const json = Papa.parse(csv, {'header': sheet.properties?.title !== 'tableDataSheet'}).data;
-    return {[sheet.properties?.title || ""]: json};
+    return {[sheet.properties?.title ?? ""]: json};
 }
 
 async function fetchSpreadsheetJSON(file: FileJSON, auth: JWT) {
@@ -134,14 +132,18 @@ async function fetchSpreadsheetJSON(file: FileJSON, auth: JWT) {
     const delays = spreadsheet.data.sheets?.map((sheet, n) => {
         ms += n > delayCutoff ? delayMax : delayInitial * Math.pow(delayExp, n);
         return delay(ms, () => fetchSheetJSON(sheet, file.metaData.exportLinks, file.metaData.id, file.metaData.title, auth));
-    }) || [];
+    }) ?? [];
     try {
         const sheetJSONs = await Promise.all(delays.map(d => d.promise));
         file.properties = {
             isTable: sheetJSONs.findIndex(sheetJSON => sheetJSON['tableDataSheet'] !== undefined) > -1
         }
 
-        return {'sheets': Object.assign({}, ...sheetJSONs)};
+        return {
+            sheets: {
+                ...sheetJSONs
+            }
+        };
     } catch (err) {
         delays.forEach(d => d.cancel());
         throw err;

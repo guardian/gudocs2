@@ -23,7 +23,7 @@ export async function getStateDb(): Promise<State> {
             "key": "config"
         }
     })
-    if (result.Item?.['lastChangeId'] && result.Item['lastSaved']) {
+    if (typeof result.Item?.['lastChangeId'] === "number" && typeof result.Item['lastSaved'] === "string") {
         return { lastChangeId: result.Item['lastChangeId'], lastSaved: new Date(result.Item['lastSaved']) };    
     } else {
         return { lastChangeId: 0, lastSaved: new Date('1900-01-01') };
@@ -53,7 +53,7 @@ async function getGuFile(id: string): Promise<FileJSON | null> {
         }
     })
 
-    if (result.Item) {
+    if (result.Item !== undefined) {
         return result.Item['file'] as FileJSON
     } else {
         return null
@@ -62,7 +62,7 @@ async function getGuFile(id: string): Promise<FileJSON | null> {
 
 interface PaginatedResult<T> {
     items: T[];
-    token: string;
+    token: string | undefined;
 }
 export async function getAllGuFiles(start?: number): Promise<PaginatedResult<FileJSON>> {
     const results = await dynamo.query({
@@ -70,7 +70,7 @@ export async function getAllGuFiles(start?: number): Promise<PaginatedResult<Fil
         IndexName: "last-modified",
         ExpressionAttributeValues: {
             ':type': 'file',
-            ':lastModified': start || 0,
+            ':lastModified': start ?? 0,
         },
         ExpressionAttributeNames: {
             "#t": "type"
@@ -79,11 +79,11 @@ export async function getAllGuFiles(start?: number): Promise<PaginatedResult<Fil
         Limit: 10,
     })
     const lastEvaluatedKey = results.LastEvaluatedKey
-    const token = lastEvaluatedKey ? lastEvaluatedKey['key'] : undefined
+    const token = lastEvaluatedKey !== undefined && typeof lastEvaluatedKey['key'] === "string" ? lastEvaluatedKey['key'] : undefined
 
     const items = results.Items
     return {
-        items: items ? items.map((item) => item['file'] as FileJSON) : [],
+        items: items !== undefined ? items.map((item) => item['file'] as FileJSON) : [],
         token
     }
 }
@@ -92,7 +92,7 @@ async function saveGuFile(file: FileJSON): Promise<boolean> {
     const Item = {
         "key": `file:${file.metaData.id}`,
         file: file,
-        lastModified: file.metaData.modifiedDate ? new Date(file.metaData.modifiedDate).getTime() : new Date().getTime(),
+        lastModified: notEmpty(file.metaData.modifiedDate) ? new Date(file.metaData.modifiedDate).getTime() : new Date().getTime(),
         "type": "file",
     };
 

@@ -2,7 +2,7 @@ import type { GaxiosPromise } from 'gaxios'
 import type { JWT } from 'google-auth-library'
 import type { drive_v2} from 'googleapis';
 import { google } from 'googleapis'
-import { notEmpty } from './util';
+import { notEmpty, numberOrZero } from './util';
 
 const drive = google.drive('v2');
 const sheets = google.sheets('v4');
@@ -19,17 +19,18 @@ export interface ChangedFiles {
 }
 
 function changedFiles(changes: drive_v2.Schema$Change[] | undefined): DriveFile[] {
-    return changes?.map(item => item.file).filter(notEmpty).filter(isDriveFile) || []
+    return changes?.map(item => item.file).filter(notEmpty).filter(isDriveFile) ?? []
 }
 
+
 export async function fetchAllChanges(pageToken: string | undefined = undefined, auth: JWT): Promise<ChangedFiles> {
-    const options = Object.assign({auth, 'maxResults': 1000}, pageToken ? {pageToken} : {});
+    const options = Object.assign({auth, 'maxResults': 1000}, pageToken !== undefined ? {pageToken} : {});
     const page = await drive.changes.list(options);
 
-    if (page.data.nextPageToken) {
+    if (notEmpty(page.data.nextPageToken)) {
         const nextPage = await fetchAllChanges(page.data.nextPageToken, auth);
-        const pageLargestChangeId = Number(page.data.largestChangeId) || 0;
-        const nextPageLargestChangeId = Number(nextPage.largestChangeId) || 0;
+        const pageLargestChangeId = numberOrZero(page.data.largestChangeId);
+        const nextPageLargestChangeId = nextPage.largestChangeId;
         return {
             items: (changedFiles(page.data.items)).concat(nextPage.items),
             largestChangeId: Math.max(pageLargestChangeId, nextPageLargestChangeId)
@@ -37,7 +38,7 @@ export async function fetchAllChanges(pageToken: string | undefined = undefined,
     } else {
         return {
             items: changedFiles(page.data.items),
-            largestChangeId: Number(page.data.largestChangeId) || 0,
+            largestChangeId: numberOrZero(page.data.largestChangeId),
         };
     }
 }
@@ -47,7 +48,7 @@ export async function fetchRecentChanges(startChangeId: number, auth: JWT): Prom
     const page = await drive.changes.list(options);
     return {
         items: changedFiles(page.data.items),
-        largestChangeId: Number(page.data.largestChangeId) || 0,
+        largestChangeId: numberOrZero(page.data.largestChangeId),
     };
 }
 

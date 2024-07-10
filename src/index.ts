@@ -12,10 +12,15 @@ import type { Config} from './guFile';
 import { isProdCurrent, isTestCurrent, s3Url } from './guFile';
 import { index } from './templates';
 import { style } from './templates/style';
+import { numberOrZero } from './util';
 
+interface GoogleAccountDetails {
+	client_email: string;
+	private_key: string;
+}
 
 const getAuth = async () => {
-	const googleServiceAccountDetails = JSON.parse(await secretPromiseGetter("serviceAccountKey"));
+	const googleServiceAccountDetails = JSON.parse(await secretPromiseGetter("serviceAccountKey")) as GoogleAccountDetails;
 	return new google.auth.JWT(googleServiceAccountDetails.client_email, undefined, googleServiceAccountDetails.private_key, ['https://www.googleapis.com/auth/drive']);
 }
 
@@ -46,8 +51,11 @@ export const doSchedule = async (): Promise<string> => {
 };
 
 export const scheduleHandler = async (
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- part of lambda API
 	event: APIGatewayProxyEvent,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- part of lambda API
 	context: APIGatewayEventRequestContext,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- part of lambda API
 	callback: APIGatewayProxyCallback,
 ): Promise<string> => {
 	return await doSchedule()
@@ -62,15 +70,15 @@ export const doPublish = async (fileId: string): Promise<string> => {
 
 export const publishHandler = async (
 	event: APIGatewayProxyEvent,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- part of lambda API
 	context: APIGatewayEventRequestContext,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- part of lambda API
 	callback: APIGatewayProxyCallback,
 ): Promise<string> => {
-	const auth = await getAuth();
-	const config = await getConfig();
 	if (event.httpMethod !== "POST") {
 		throw new Error("Method not allowed")
 	}
-	const body = event.body ? JSON.parse(event.body) : {};
+	const body = event.body ? JSON.parse(event.body) : {}; // todo: fix this to be a form post
 	const fileId = body["id"];
 	if (!fileId) {
 		throw new Error("File ID not found")
@@ -94,7 +102,7 @@ export interface DocumentInfo {
 }
 
 interface Response {
-	token: string;
+	token: string | undefined;
 	dev: string | undefined;
 	state: State;
 	files: DocumentInfo[];
@@ -120,7 +128,7 @@ export async function readDocuments(lastModified: number | undefined, dev: strin
 	const config = await getConfig();
 	const files = filesResponse.items.map((file) => {
 		return ({
-		domainPermissions: file.domainPermissions || "unknown",
+		domainPermissions: file.domainPermissions ?? "unknown",
 		iconLink: file.metaData.iconLink,
 		modifiedDate: file.metaData.modifiedDate,
 		urlDocs: file.metaData.alternateLink,
@@ -144,10 +152,12 @@ export async function readDocuments(lastModified: number | undefined, dev: strin
 
 export const getDocuments = async (
 	event: APIGatewayProxyEvent,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- part of lambda API
 	context: APIGatewayEventRequestContext,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- part of lambda API
 	callback: APIGatewayProxyCallback,
 ): Promise<Response> => {
-	const lastModified = Number((event.queryStringParameters || {})["lastModified"]) || 0
-	const dev = (event.queryStringParameters || {})["dev"];
+	const lastModified = numberOrZero(event.queryStringParameters?.["lastModified"])
+	const dev = event.queryStringParameters?.["dev"];
 	return readDocuments(lastModified, dev);
 };
