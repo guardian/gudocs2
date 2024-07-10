@@ -9,7 +9,6 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
       "GuSubnetListParameter",
       "GuDistributionBucketParameter",
       "GuLambdaFunction",
-      "GuLambdaFunction",
       "GuApiGatewayWithLambdaByPath",
       "GuScheduledLambda",
     ],
@@ -152,10 +151,9 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Retain",
     },
-    "RestApiDeployment180EC503d641cc4ca34b723ccc9f535ae696a278": {
+    "RestApiDeployment180EC5032ccf98fdb6dd942f3a2df38053daf327": {
       "DependsOn": [
-        "RestApidocumentsGETAB791FA6",
-        "RestApidocumentsA82097B4",
+        "RestApiGET0F59260B",
         "RestApipublishPOST47D1FC78",
         "RestApipublishEFC5B6CE",
       ],
@@ -173,7 +171,7 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
       ],
       "Properties": {
         "DeploymentId": {
-          "Ref": "RestApiDeployment180EC503d641cc4ca34b723ccc9f535ae696a278",
+          "Ref": "RestApiDeployment180EC5032ccf98fdb6dd942f3a2df38053daf327",
         },
         "RestApiId": {
           "Ref": "RestApi0C43BF4B",
@@ -200,22 +198,7 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
       },
       "Type": "AWS::ApiGateway::Stage",
     },
-    "RestApidocumentsA82097B4": {
-      "Properties": {
-        "ParentId": {
-          "Fn::GetAtt": [
-            "RestApi0C43BF4B",
-            "RootResourceId",
-          ],
-        },
-        "PathPart": "documents",
-        "RestApiId": {
-          "Ref": "RestApi0C43BF4B",
-        },
-      },
-      "Type": "AWS::ApiGateway::Resource",
-    },
-    "RestApidocumentsGETAB791FA6": {
+    "RestApiGET0F59260B": {
       "Properties": {
         "AuthorizationType": "NONE",
         "HttpMethod": "GET",
@@ -237,7 +220,7 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
                 ":lambda:path/2015-03-31/functions/",
                 {
                   "Fn::GetAtt": [
-                    "getdocuments9A27C21A",
+                    "serverlessexpress345C9909",
                     "Arn",
                   ],
                 },
@@ -247,7 +230,10 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
           },
         },
         "ResourceId": {
-          "Ref": "RestApidocumentsA82097B4",
+          "Fn::GetAtt": [
+            "RestApi0C43BF4B",
+            "RootResourceId",
+          ],
         },
         "RestApiId": {
           "Ref": "RestApi0C43BF4B",
@@ -255,12 +241,12 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
       },
       "Type": "AWS::ApiGateway::Method",
     },
-    "RestApidocumentsGETApiPermissionGuDocsAPIRestApi65AC27F3GETdocuments096FC7F4": {
+    "RestApiGETApiPermissionGuDocsAPIRestApi65AC27F3GET72D119D5": {
       "Properties": {
         "Action": "lambda:InvokeFunction",
         "FunctionName": {
           "Fn::GetAtt": [
-            "getdocuments9A27C21A",
+            "serverlessexpress345C9909",
             "Arn",
           ],
         },
@@ -289,19 +275,19 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
               {
                 "Ref": "RestApiDeploymentStageprod3855DE66",
               },
-              "/GET/documents",
+              "/GET/",
             ],
           ],
         },
       },
       "Type": "AWS::Lambda::Permission",
     },
-    "RestApidocumentsGETApiPermissionTestGuDocsAPIRestApi65AC27F3GETdocuments4A184B29": {
+    "RestApiGETApiPermissionTestGuDocsAPIRestApi65AC27F3GETC37C99B0": {
       "Properties": {
         "Action": "lambda:InvokeFunction",
         "FunctionName": {
           "Fn::GetAtt": [
-            "getdocuments9A27C21A",
+            "serverlessexpress345C9909",
             "Arn",
           ],
         },
@@ -326,7 +312,7 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
               {
                 "Ref": "RestApi0C43BF4B",
               },
-              "/test-invoke-stage/GET/documents",
+              "/test-invoke-stage/GET/",
             ],
           ],
         },
@@ -370,7 +356,7 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
                 ":lambda:path/2015-03-31/functions/",
                 {
                   "Fn::GetAtt": [
-                    "publish98FFDE07",
+                    "serverlessexpress345C9909",
                     "Arn",
                   ],
                 },
@@ -393,7 +379,7 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
         "Action": "lambda:InvokeFunction",
         "FunctionName": {
           "Fn::GetAtt": [
-            "publish98FFDE07",
+            "serverlessexpress345C9909",
             "Arn",
           ],
         },
@@ -434,7 +420,7 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
         "Action": "lambda:InvokeFunction",
         "FunctionName": {
           "Fn::GetAtt": [
-            "publish98FFDE07",
+            "serverlessexpress345C9909",
             "Arn",
           ],
         },
@@ -538,333 +524,6 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
       "Type": "AWS::DynamoDB::Table",
       "UpdateReplacePolicy": "Retain",
     },
-    "getdocuments9A27C21A": {
-      "DependsOn": [
-        "getdocumentsServiceRoleDefaultPolicy49C8A0ED",
-        "getdocumentsServiceRole2797EAB0",
-      ],
-      "Properties": {
-        "Code": {
-          "S3Bucket": {
-            "Ref": "DistributionBucketName",
-          },
-          "S3Key": "playground/TEST/gudocs-get-documents/gudocs2.zip",
-        },
-        "Environment": {
-          "Variables": {
-            "APP": "gudocs-get-documents",
-            "STACK": "playground",
-            "STAGE": "TEST",
-            "Stage": "TEST",
-          },
-        },
-        "FunctionName": "gudocs-get-document-TEST",
-        "Handler": "dist/lambda/index.getDocuments",
-        "MemorySize": 512,
-        "Role": {
-          "Fn::GetAtt": [
-            "getdocumentsServiceRole2797EAB0",
-            "Arn",
-          ],
-        },
-        "Runtime": "nodejs18.x",
-        "Tags": [
-          {
-            "Key": "App",
-            "Value": "gudocs-get-documents",
-          },
-          {
-            "Key": "gu:cdk:version",
-            "Value": "TEST",
-          },
-          {
-            "Key": "gu:repo",
-            "Value": "guardian/gudocs2",
-          },
-          {
-            "Key": "Stack",
-            "Value": "playground",
-          },
-          {
-            "Key": "Stage",
-            "Value": "TEST",
-          },
-        ],
-        "Timeout": 30,
-        "VpcConfig": {
-          "SecurityGroupIds": [
-            {
-              "Fn::GetAtt": [
-                "getdocumentsSecurityGroupB171355D",
-                "GroupId",
-              ],
-            },
-          ],
-          "SubnetIds": {
-            "Ref": "PrivateSubnets",
-          },
-        },
-      },
-      "Type": "AWS::Lambda::Function",
-    },
-    "getdocumentsSecurityGroupB171355D": {
-      "Properties": {
-        "GroupDescription": "Automatic security group for Lambda Function GuDocsAPIgetdocumentsB2FB3696",
-        "SecurityGroupEgress": [
-          {
-            "CidrIp": "0.0.0.0/0",
-            "Description": "Allow all outbound traffic by default",
-            "IpProtocol": "-1",
-          },
-        ],
-        "Tags": [
-          {
-            "Key": "App",
-            "Value": "gudocs-get-documents",
-          },
-          {
-            "Key": "gu:cdk:version",
-            "Value": "TEST",
-          },
-          {
-            "Key": "gu:repo",
-            "Value": "guardian/gudocs2",
-          },
-          {
-            "Key": "Stack",
-            "Value": "playground",
-          },
-          {
-            "Key": "Stage",
-            "Value": "TEST",
-          },
-        ],
-        "VpcId": {
-          "Ref": "VpcId",
-        },
-      },
-      "Type": "AWS::EC2::SecurityGroup",
-    },
-    "getdocumentsServiceRole2797EAB0": {
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "lambda.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "ManagedPolicyArns": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-              ],
-            ],
-          },
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
-              ],
-            ],
-          },
-        ],
-        "Tags": [
-          {
-            "Key": "App",
-            "Value": "gudocs-get-documents",
-          },
-          {
-            "Key": "gu:cdk:version",
-            "Value": "TEST",
-          },
-          {
-            "Key": "gu:repo",
-            "Value": "guardian/gudocs2",
-          },
-          {
-            "Key": "Stack",
-            "Value": "playground",
-          },
-          {
-            "Key": "Stage",
-            "Value": "TEST",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
-    },
-    "getdocumentsServiceRoleDefaultPolicy49C8A0ED": {
-      "Properties": {
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Action": [
-                "s3:GetObject*",
-                "s3:GetBucket*",
-                "s3:List*",
-              ],
-              "Effect": "Allow",
-              "Resource": [
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:",
-                      {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":s3:::",
-                      {
-                        "Ref": "DistributionBucketName",
-                      },
-                    ],
-                  ],
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:",
-                      {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":s3:::",
-                      {
-                        "Ref": "DistributionBucketName",
-                      },
-                      "/playground/TEST/gudocs-get-documents/gudocs2.zip",
-                    ],
-                  ],
-                },
-              ],
-            },
-            {
-              "Action": "ssm:GetParametersByPath",
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
-                    {
-                      "Ref": "AWS::AccountId",
-                    },
-                    ":parameter/TEST/playground/gudocs-get-documents",
-                  ],
-                ],
-              },
-            },
-            {
-              "Action": [
-                "ssm:GetParameters",
-                "ssm:GetParameter",
-              ],
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
-                    {
-                      "Ref": "AWS::AccountId",
-                    },
-                    ":parameter/TEST/playground/gudocs-get-documents/*",
-                  ],
-                ],
-              },
-            },
-            {
-              "Action": "ssm:GetParametersByPath",
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
-                    {
-                      "Ref": "AWS::AccountId",
-                    },
-                    ":parameter/TEST/playground/gudocs/*",
-                  ],
-                ],
-              },
-            },
-            {
-              "Action": [
-                "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
-                "dynamodb:Query",
-                "dynamodb:GetItem",
-                "dynamodb:Scan",
-                "dynamodb:ConditionCheckItem",
-                "dynamodb:DescribeTable",
-              ],
-              "Effect": "Allow",
-              "Resource": [
-                {
-                  "Fn::GetAtt": [
-                    "TableCD117FA1",
-                    "Arn",
-                  ],
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      {
-                        "Fn::GetAtt": [
-                          "TableCD117FA1",
-                          "Arn",
-                        ],
-                      },
-                      "/index/*",
-                    ],
-                  ],
-                },
-              ],
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "PolicyName": "getdocumentsServiceRoleDefaultPolicy49C8A0ED",
-        "Roles": [
-          {
-            "Ref": "getdocumentsServiceRole2797EAB0",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Policy",
-    },
     "gudocs860B986D": {
       "DependsOn": [
         "gudocsServiceRoleDefaultPolicyE352211E",
@@ -885,7 +544,11 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
             "Stage": "TEST",
           },
         },
+        "FunctionName": "gudocs-schedule-TEST",
         "Handler": "dist/lambda/index.scheduleHandler",
+        "LoggingConfig": {
+          "LogFormat": "JSON",
+        },
         "MemorySize": 512,
         "Role": {
           "Fn::GetAtt": [
@@ -1232,32 +895,35 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
       },
       "Type": "AWS::Events::Rule",
     },
-    "publish98FFDE07": {
+    "serverlessexpress345C9909": {
       "DependsOn": [
-        "publishServiceRoleDefaultPolicy1754110B",
-        "publishServiceRoleD6DF777D",
+        "serverlessexpressServiceRoleDefaultPolicy84DAB9CD",
+        "serverlessexpressServiceRoleE0824EA0",
       ],
       "Properties": {
         "Code": {
           "S3Bucket": {
             "Ref": "DistributionBucketName",
           },
-          "S3Key": "playground/TEST/gudocs-publish/gudocs2.zip",
+          "S3Key": "playground/TEST/gudocs-serverless-express/gudocs2.zip",
         },
         "Environment": {
           "Variables": {
-            "APP": "gudocs-publish",
+            "APP": "gudocs-serverless-express",
             "STACK": "playground",
             "STAGE": "TEST",
             "Stage": "TEST",
           },
         },
-        "FunctionName": "gudocs-publish-TEST",
-        "Handler": "dist/lambda/index.publishHandler",
+        "FunctionName": "gudocs-serverless-express-TEST",
+        "Handler": "dist/lambda/lambda.handler",
+        "LoggingConfig": {
+          "LogFormat": "JSON",
+        },
         "MemorySize": 512,
         "Role": {
           "Fn::GetAtt": [
-            "publishServiceRoleD6DF777D",
+            "serverlessexpressServiceRoleE0824EA0",
             "Arn",
           ],
         },
@@ -1265,7 +931,7 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
         "Tags": [
           {
             "Key": "App",
-            "Value": "gudocs-publish",
+            "Value": "gudocs-serverless-express",
           },
           {
             "Key": "gu:cdk:version",
@@ -1289,7 +955,7 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
           "SecurityGroupIds": [
             {
               "Fn::GetAtt": [
-                "publishSecurityGroup789308B0",
+                "serverlessexpressSecurityGroup2E1CF725",
                 "GroupId",
               ],
             },
@@ -1301,9 +967,9 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
       },
       "Type": "AWS::Lambda::Function",
     },
-    "publishSecurityGroup789308B0": {
+    "serverlessexpressSecurityGroup2E1CF725": {
       "Properties": {
-        "GroupDescription": "Automatic security group for Lambda Function GuDocsAPIpublish8185B65F",
+        "GroupDescription": "Automatic security group for Lambda Function GuDocsAPIserverlessexpress08EA6F58",
         "SecurityGroupEgress": [
           {
             "CidrIp": "0.0.0.0/0",
@@ -1314,7 +980,7 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
         "Tags": [
           {
             "Key": "App",
-            "Value": "gudocs-publish",
+            "Value": "gudocs-serverless-express",
           },
           {
             "Key": "gu:cdk:version",
@@ -1339,72 +1005,7 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
       },
       "Type": "AWS::EC2::SecurityGroup",
     },
-    "publishServiceRoleD6DF777D": {
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "lambda.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "ManagedPolicyArns": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-              ],
-            ],
-          },
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
-              ],
-            ],
-          },
-        ],
-        "Tags": [
-          {
-            "Key": "App",
-            "Value": "gudocs-publish",
-          },
-          {
-            "Key": "gu:cdk:version",
-            "Value": "TEST",
-          },
-          {
-            "Key": "gu:repo",
-            "Value": "guardian/gudocs2",
-          },
-          {
-            "Key": "Stack",
-            "Value": "playground",
-          },
-          {
-            "Key": "Stage",
-            "Value": "TEST",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
-    },
-    "publishServiceRoleDefaultPolicy1754110B": {
+    "serverlessexpressServiceRoleDefaultPolicy84DAB9CD": {
       "Properties": {
         "PolicyDocument": {
           "Statement": [
@@ -1443,7 +1044,7 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
                       {
                         "Ref": "DistributionBucketName",
                       },
-                      "/playground/TEST/gudocs-publish/gudocs2.zip",
+                      "/playground/TEST/gudocs-serverless-express/gudocs2.zip",
                     ],
                   ],
                 },
@@ -1464,7 +1065,7 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
                     {
                       "Ref": "AWS::AccountId",
                     },
-                    ":parameter/TEST/playground/gudocs-publish",
+                    ":parameter/TEST/playground/gudocs-serverless-express",
                   ],
                 ],
               },
@@ -1487,7 +1088,7 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
                     {
                       "Ref": "AWS::AccountId",
                     },
-                    ":parameter/TEST/playground/gudocs-publish/*",
+                    ":parameter/TEST/playground/gudocs-serverless-express/*",
                   ],
                 ],
               },
@@ -1554,14 +1155,79 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
           ],
           "Version": "2012-10-17",
         },
-        "PolicyName": "publishServiceRoleDefaultPolicy1754110B",
+        "PolicyName": "serverlessexpressServiceRoleDefaultPolicy84DAB9CD",
         "Roles": [
           {
-            "Ref": "publishServiceRoleD6DF777D",
+            "Ref": "serverlessexpressServiceRoleE0824EA0",
           },
         ],
       },
       "Type": "AWS::IAM::Policy",
+    },
+    "serverlessexpressServiceRoleE0824EA0": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
+              ],
+            ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "gudocs-serverless-express",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/gudocs2",
+          },
+          {
+            "Key": "Stack",
+            "Value": "playground",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
     },
   },
 }
