@@ -14,7 +14,7 @@ export interface State {
     lastSaved: Date;
 }
 
-const dynamo = DynamoDBDocument.from(new DynamoDB(standardAwsConfig));
+const dynamo = DynamoDBDocument.from(new DynamoDB(standardAwsConfig), { marshallOptions: { removeUndefinedValues: true }});
 
 export async function getStateDb(): Promise<State> {
     const result = await dynamo.get({
