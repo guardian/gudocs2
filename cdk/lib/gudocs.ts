@@ -1,6 +1,6 @@
 import { GuApiGatewayWithLambdaByPath, GuScheduledLambda } from '@guardian/cdk';
 import type { GuStackProps } from '@guardian/cdk/lib/constructs/core';
-import { GuStack } from '@guardian/cdk/lib/constructs/core';
+import { GuStack, GuStringParameter } from '@guardian/cdk/lib/constructs/core';
 import { GuVpc } from '@guardian/cdk/lib/constructs/ec2/vpc'
 import { GuLambdaFunction } from '@guardian/cdk/lib/constructs/lambda';
 import type { App } from 'aws-cdk-lib';
@@ -40,12 +40,20 @@ export class GuDocs extends GuStack {
 			environment,
 		};
 
-		const serverlessExpressLambda = new GuLambdaFunction(this, "serverless-express", {
-			handler: "index.handler",
-			functionName: `gudocs-serverless-express-${this.stage}`,
-			app: `${app}-serverless-express`,
-			...sharedLambdaProps,			
-		});
+		const s3BucketName = new GuStringParameter(this, 'S3BucketName', {
+			fromSSM: true,
+			default: `/${this.stage}/interactives/gudocs/s3bucket`,
+			description: "The bucket used to store docs"
+		  });
+
+		const s3BucketPolicy = new PolicyStatement({
+			actions: [
+				"s3:PutObject",
+			],
+			resources: [
+				`arn:aws:s3:${this.region}:${this.account}:${s3BucketName}/*`,
+			],
+		})
 
 		const sharedParametersPolicy = new PolicyStatement({
 			actions: [
@@ -57,6 +65,14 @@ export class GuDocs extends GuStack {
 			`arn:aws:ssm:${this.region}:${this.account}:parameter/${this.stage}/${this.stack}/${app}/*`,
 			],
 		})
+		
+		const serverlessExpressLambda = new GuLambdaFunction(this, "serverless-express", {
+			handler: "index.handler",
+			functionName: `gudocs-serverless-express-${this.stage}`,
+			app: `${app}-serverless-express`,
+			...sharedLambdaProps,			
+		});
+		serverlessExpressLambda.addToRolePolicy(s3BucketPolicy)
 		serverlessExpressLambda.addToRolePolicy(sharedParametersPolicy)
 
 		new GuApiGatewayWithLambdaByPath(this, {
@@ -90,6 +106,7 @@ export class GuDocs extends GuStack {
 			app: `${app}-schedule`,
 			...sharedLambdaProps,
 		});
+		scheduledLambda.addToRolePolicy(s3BucketPolicy)
 		scheduledLambda.addToRolePolicy(sharedParametersPolicy)
 
 		const table = new Table(this, 'Table', {

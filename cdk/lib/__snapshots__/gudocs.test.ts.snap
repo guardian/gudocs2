@@ -7,6 +7,7 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
       "GuDocs",
       "GuVpcParameter",
       "GuSubnetListParameter",
+      "GuStringParameter",
       "GuDistributionBucketParameter",
       "GuLambdaFunction",
       "GuApiGatewayWithLambdaByPath",
@@ -52,6 +53,11 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
       "Default": "/account/vpc/primary/subnets/private",
       "Description": "A list of private subnets",
       "Type": "AWS::SSM::Parameter::Value<List<AWS::EC2::Subnet::Id>>",
+    },
+    "S3BucketName": {
+      "Default": "/TEST/interactives/gudocs/s3bucket",
+      "Description": "The bucket used to store docs",
+      "Type": "AWS::SSM::Parameter::Value<String>",
     },
     "VpcId": {
       "Default": "/account/vpc/primary/id",
@@ -788,6 +794,26 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
               },
             },
             {
+              "Action": "s3:PutObject",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":GuDocsAPI/S3BucketName/*",
+                  ],
+                ],
+              },
+            },
+            {
               "Action": [
                 "ssm:GetParametersByPath",
                 "ssm:GetParameters",
@@ -1093,6 +1119,26 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
                       "Ref": "AWS::AccountId",
                     },
                     ":parameter/TEST/playground/gudocs-serverless-express/*",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": "s3:PutObject",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":GuDocsAPI/S3BucketName/*",
                   ],
                 ],
               },
