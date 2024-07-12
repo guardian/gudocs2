@@ -49,6 +49,7 @@ export class GuDocs extends GuStack {
 		const s3BucketPolicy = new PolicyStatement({
 			actions: [
 				"s3:PutObject",
+				"s3:PutObjectAcl",
 			],
 			resources: [
 				`arn:aws:s3:::${s3BucketName.valueAsString}/*`,
