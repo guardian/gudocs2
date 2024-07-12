@@ -137,7 +137,7 @@ export class GuDocs extends GuStack {
 		new GuCname(this, 'CnameApiRecord', {
 			domainName: props.domainName,
 			app,
-			resourceRecord: cfnDomainName.attrRegionalDomainName,
+			resourceRecord: cfnDomainName.attrDistributionDomainName,
 			ttl: Duration.minutes(1),
 		});
 	

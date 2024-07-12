@@ -95,7 +95,7 @@ exports[`The GuDocs stack matches the snapshot 1`] = `
           {
             "Fn::GetAtt": [
               "DomainName",
-              "RegionalDomainName",
+              "DistributionDomainName",
             ],
           },
         ],
