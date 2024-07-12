@@ -808,7 +808,11 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
                     {
                       "Ref": "AWS::AccountId",
                     },
-                    ":GuDocsAPI/S3BucketName/*",
+                    ":",
+                    {
+                      "Ref": "S3BucketName",
+                    },
+                    "/*",
                   ],
                 ],
               },
@@ -1138,7 +1142,11 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
                     {
                       "Ref": "AWS::AccountId",
                     },
-                    ":GuDocsAPI/S3BucketName/*",
+                    ":",
+                    {
+                      "Ref": "S3BucketName",
+                    },
+                    "/*",
                   ],
                 ],
               },
