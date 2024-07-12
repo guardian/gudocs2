@@ -41,6 +41,7 @@ new GuDocs(
 		env: { region: 'eu-west-1' },
 		stack: 'interactives',
 		stage: 'CODE',
+		domainName: codeDomainName,
 	},
 );
 
@@ -51,5 +52,6 @@ new GuDocs(
 		env: { region: 'eu-west-1' },
 		stack: 'interactives',
 		stage: 'PROD',
+		domainName: prodDomainName,
 	},
 );

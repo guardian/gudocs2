@@ -4,14 +4,19 @@ import type { GuStackProps } from '@guardian/cdk/lib/constructs/core';
 import { GuStack, GuStringParameter } from '@guardian/cdk/lib/constructs/core';
 import { GuVpc } from '@guardian/cdk/lib/constructs/ec2/vpc'
 import { GuLambdaFunction } from '@guardian/cdk/lib/constructs/lambda';
-import type { App } from 'aws-cdk-lib';
+import { Duration, type App } from 'aws-cdk-lib';
+import { CfnBasePathMapping, CfnDomainName } from 'aws-cdk-lib/aws-apigateway';
 import {AttributeType, Table} from "aws-cdk-lib/aws-dynamodb";
 import { Schedule } from 'aws-cdk-lib/aws-events';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
-
+import { GuCname } from '@guardian/cdk/lib/constructs/dns/dns-records';
 
 const APP_NAME = 'gudocs';
+
+interface GuDocsStackProps extends GuStackProps {
+	domainName: string;
+}
 
 interface GuDocsCertificateStackProps extends GuStackProps {
 	domainName: string;
@@ -32,7 +37,7 @@ export class GuDocs extends GuStack {
 	constructor(
 		scope: App,
 		id: string,
-		props: GuStackProps
+		props: GuDocsStackProps
 	) {
 		super(scope, id, props);
 
@@ -92,7 +97,7 @@ export class GuDocs extends GuStack {
 		serverlessExpressLambda.addToRolePolicy(s3BucketPolicy)
 		serverlessExpressLambda.addToRolePolicy(sharedParametersPolicy)
 
-		new GuApiGatewayWithLambdaByPath(this, {
+		const gateway = new GuApiGatewayWithLambdaByPath(this, {
 			app: "testing",
 			monitoringConfiguration: { noMonitoring: true },
 			targets: [
@@ -107,6 +112,33 @@ export class GuDocs extends GuStack {
 				lambda: serverlessExpressLambda,
 				},
 			],
+		});
+
+		const cloudFrontCertificateArn = new GuStringParameter(this, 'CloudFrontCertificateArn', {
+			fromSSM: true,
+			default: `/INFRA/${props.domainName}/cloudFrontCertificateArn`,
+			description: "The ARN of the certificate for the Cloudfront distribution. Must be created in us-east-1."
+		});
+
+		const cfnDomainName = new CfnDomainName(this, 'DomainName', {
+			domainName: props.domainName,
+			regionalCertificateArn: cloudFrontCertificateArn.valueAsString,
+			endpointConfiguration: {
+				types: ['REGIONAL'],
+			},
+		});
+
+		new CfnBasePathMapping(this, 'BasePathMapping', {
+			domainName: cfnDomainName.ref,
+			restApiId: gateway.api.restApiId,
+			stage: gateway.api.deploymentStage.stageName,
+		});
+
+		new GuCname(this, 'CnameApiRecord', {
+			domainName: props.domainName,
+			app,
+			resourceRecord: cfnDomainName.attrRegionalDomainName,
+			ttl: Duration.minutes(1),
 		});
 	
 		const scheduledLambda = new GuScheduledLambda(this, APP_NAME, {

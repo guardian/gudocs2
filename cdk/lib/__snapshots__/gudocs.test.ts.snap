@@ -11,6 +11,8 @@ exports[`The GuDocs stack matches the snapshot 1`] = `
       "GuDistributionBucketParameter",
       "GuLambdaFunction",
       "GuApiGatewayWithLambdaByPath",
+      "GuStringParameter",
+      "GuCname",
       "GuScheduledLambda",
     ],
     "gu:cdk:version": "TEST",
@@ -44,6 +46,11 @@ exports[`The GuDocs stack matches the snapshot 1`] = `
     },
   },
   "Parameters": {
+    "CloudFrontCertificateArn": {
+      "Default": "/INFRA/gudocs.test.dev-gutools.co.uk/cloudFrontCertificateArn",
+      "Description": "The ARN of the certificate for the Cloudfront distribution. Must be created in us-east-1.",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
     "DistributionBucketName": {
       "Default": "/account/services/artifact.bucket",
       "Description": "SSM parameter containing the S3 bucket name holding distribution artifacts",
@@ -66,6 +73,69 @@ exports[`The GuDocs stack matches the snapshot 1`] = `
     },
   },
   "Resources": {
+    "BasePathMapping": {
+      "Properties": {
+        "DomainName": {
+          "Ref": "DomainName",
+        },
+        "RestApiId": {
+          "Ref": "RestApi0C43BF4B",
+        },
+        "Stage": {
+          "Ref": "RestApiDeploymentStageprod3855DE66",
+        },
+      },
+      "Type": "AWS::ApiGateway::BasePathMapping",
+    },
+    "CnameApiRecord": {
+      "Properties": {
+        "Name": "gudocs.test.dev-gutools.co.uk",
+        "RecordType": "CNAME",
+        "ResourceRecords": [
+          {
+            "Fn::GetAtt": [
+              "DomainName",
+              "RegionalDomainName",
+            ],
+          },
+        ],
+        "Stage": "TEST",
+        "TTL": 60,
+      },
+      "Type": "Guardian::DNS::RecordSet",
+    },
+    "DomainName": {
+      "Properties": {
+        "DomainName": "gudocs.test.dev-gutools.co.uk",
+        "EndpointConfiguration": {
+          "Types": [
+            "REGIONAL",
+          ],
+        },
+        "RegionalCertificateArn": {
+          "Ref": "CloudFrontCertificateArn",
+        },
+        "Tags": [
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/gudocs2",
+          },
+          {
+            "Key": "Stack",
+            "Value": "playground",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::ApiGateway::DomainName",
+    },
     "RestApi0C43BF4B": {
       "Properties": {
         "Name": "playground-TEST-testing",

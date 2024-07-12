@@ -5,7 +5,7 @@ import { GuDocs, GuDocsCertificate } from "./gudocs";
 describe("The GuDocs stack", () => {
   it("matches the snapshot", () => {
     const app = new App();
-    const stack = new GuDocs(app, "GuDocsAPI", { stack: "playground", stage: "TEST" });
+    const stack = new GuDocs(app, "GuDocsAPI", { stack: "playground", stage: "TEST", domainName: "gudocs.test.dev-gutools.co.uk" });
     const template = Template.fromStack(stack);
     expect(template.toJSON()).toMatchSnapshot();
   });
