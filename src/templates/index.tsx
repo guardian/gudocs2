@@ -1,5 +1,10 @@
+import TimeAgo from 'javascript-time-ago';
+import en from 'javascript-time-ago/locale/en'
 import React from 'react';
 import type { DocumentInfo } from '../actions';
+
+TimeAgo.addDefaultLocale(en)
+const timeAgo = new TimeAgo('en-GB')
 
 export const index = (css: string, lastSaved: string, email: string, domainPermissions: string, files: DocumentInfo[], baseUrl: string) => <html>
 <head>
@@ -46,9 +51,8 @@ export const index = (css: string, lastSaved: string, email: string, domainPermi
 		<h2>
 			Files
 			<span className="last-updated">
-				last updated:
-				<time dateTime={ lastSaved } title={ lastSaved }>
-					{ lastSaved }
+				last updated: <time dateTime={ lastSaved } title={ lastSaved }>
+					{ timeAgo.format(new Date(lastSaved)) }
 				</time>
 			</span>
 		</h2>
@@ -74,7 +78,7 @@ export const index = (css: string, lastSaved: string, email: string, domainPermi
 				{ files.map((file) => 
 				<tr key={file.id} className={`domainpermissions--${file.domainPermissions}`}>
 					<td><img src={ file.iconLink ?? undefined }/>{ file.title }</td>
-					<td title={ file.modifiedDate ?? undefined }>{ file.modifiedDate }</td>
+					<td title={ file.modifiedDate ?? undefined }>{ typeof file.modifiedDate === "string" ? timeAgo.format(new Date(file.modifiedDate)) : undefined }</td>
 					<td>{ file.lastModifyingUserName }</td>
 					<td><span className={`permission permission--${file.domainPermissions}`}>{ file.domainPermissions }</span></td>
 					<td>
