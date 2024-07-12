@@ -23,7 +23,7 @@ export async function getStateDb(): Promise<State> {
             "key": "config"
         }
     })
-    if (typeof result.Item?.['lastChangeId'] === "number" && typeof result.Item['lastSaved'] === "string") {
+    if (typeof result.Item?.['lastChangeId'] === "number" && typeof result.Item['lastSaved'] === "number") {
         return { lastChangeId: result.Item['lastChangeId'], lastSaved: new Date(result.Item['lastSaved']) };    
     } else {
         return { lastChangeId: 0, lastSaved: new Date('1900-01-01') };
