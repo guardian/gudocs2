@@ -800,11 +800,7 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:s3:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:s3::",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -1134,11 +1130,7 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:s3:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:s3::",
                     {
                       "Ref": "AWS::AccountId",
                     },
