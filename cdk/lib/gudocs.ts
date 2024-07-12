@@ -2,15 +2,15 @@ import { GuApiGatewayWithLambdaByPath, GuScheduledLambda } from '@guardian/cdk';
 import { GuCertificate } from '@guardian/cdk/lib/constructs/acm';
 import type { GuStackProps } from '@guardian/cdk/lib/constructs/core';
 import { GuStack, GuStringParameter } from '@guardian/cdk/lib/constructs/core';
+import { GuCname } from '@guardian/cdk/lib/constructs/dns/dns-records';
 import { GuVpc } from '@guardian/cdk/lib/constructs/ec2/vpc'
 import { GuLambdaFunction } from '@guardian/cdk/lib/constructs/lambda';
-import { Duration, type App } from 'aws-cdk-lib';
+import { type App, Duration } from 'aws-cdk-lib';
 import { CfnBasePathMapping, CfnDomainName } from 'aws-cdk-lib/aws-apigateway';
 import {AttributeType, Table} from "aws-cdk-lib/aws-dynamodb";
 import { Schedule } from 'aws-cdk-lib/aws-events';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
-import { GuCname } from '@guardian/cdk/lib/constructs/dns/dns-records';
 
 const APP_NAME = 'gudocs';
 
