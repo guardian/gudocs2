@@ -3,7 +3,7 @@ import archieml from 'archieml'
 import type { JWT } from 'google-auth-library'
 import type { drive_v2, sheets_v4 } from 'googleapis';
 import Papa from 'papaparse'
-import { s3AwsConfig } from './awsIntegration';
+import { standardAwsConfig } from './awsIntegration';
 import * as drive from './drive'
 import { delay, notEmpty } from './util'
 
@@ -17,7 +17,7 @@ export interface Config {
     baseUrl: string;
 }
 
-const s3Client = new S3Client(s3AwsConfig);
+const s3Client = new S3Client(standardAwsConfig);
 
 interface FileProperties {
     isTable?: boolean;
