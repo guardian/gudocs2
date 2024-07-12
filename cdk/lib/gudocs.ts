@@ -51,7 +51,7 @@ export class GuDocs extends GuStack {
 				"s3:PutObject",
 			],
 			resources: [
-				`arn:aws:s3::${this.account}:${s3BucketName.valueAsString}/*`,
+				`arn:aws:s3:::${s3BucketName.valueAsString}/*`,
 			],
 		})
 
