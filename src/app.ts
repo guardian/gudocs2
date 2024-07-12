@@ -35,10 +35,8 @@ export const createApp = (): express.Application => {
 
     server.post("/publish", (request: express.Request<unknown, unknown, { id: string}>, response) => {
         const fileId = request.body.id;
-        doPublish(fileId).then((r) => {
-            response.json({
-                result: r
-            })
+        doPublish(fileId).then(() => {
+            response.redirect("/")
         }).catch((err) => serverError(err, response))
     });
 
