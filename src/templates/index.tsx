@@ -50,7 +50,6 @@ export const index = (css: string, lastSaved: string, email: string, domainPermi
 				<time dateTime={ lastSaved } title={ lastSaved }>
 					{ lastSaved }
 				</time>
-				<a href="log">log</a>
 			</span>
 		</h2>
 
