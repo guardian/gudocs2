@@ -146,7 +146,7 @@ export class GuDocs extends GuStack {
 			functionName: `gudocs-schedule-${this.stage}`,
 			rules: [
 				{
-					schedule: Schedule.cron({ hour: '10', minute: '00', weekDay: '2' }),
+					schedule: Schedule.cron({ }),
 				},
 			],
 			monitoringConfiguration: {
