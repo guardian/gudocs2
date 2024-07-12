@@ -957,28 +957,9 @@ exports[`The GuDocs stack matches the snapshot 1`] = `
       },
       "Type": "AWS::IAM::Policy",
     },
-    "gudocsgudocscron001020AllowEventRuleGuDocsAPIgudocs86D0A25FF1B79F30": {
+    "gudocsgudocscron0237078B9": {
       "Properties": {
-        "Action": "lambda:InvokeFunction",
-        "FunctionName": {
-          "Fn::GetAtt": [
-            "gudocs860B986D",
-            "Arn",
-          ],
-        },
-        "Principal": "events.amazonaws.com",
-        "SourceArn": {
-          "Fn::GetAtt": [
-            "gudocsgudocscron001020C113ADFA",
-            "Arn",
-          ],
-        },
-      },
-      "Type": "AWS::Lambda::Permission",
-    },
-    "gudocsgudocscron001020C113ADFA": {
-      "Properties": {
-        "ScheduleExpression": "cron(00 10 ? * 2 *)",
+        "ScheduleExpression": "cron(* * * * ? *)",
         "State": "ENABLED",
         "Targets": [
           {
@@ -993,6 +974,25 @@ exports[`The GuDocs stack matches the snapshot 1`] = `
         ],
       },
       "Type": "AWS::Events::Rule",
+    },
+    "gudocsgudocscron0AllowEventRuleGuDocsAPIgudocs86D0A25F332BEEBC": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "gudocs860B986D",
+            "Arn",
+          ],
+        },
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {
+          "Fn::GetAtt": [
+            "gudocsgudocscron0237078B9",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
     },
     "serverlessexpress345C9909": {
       "DependsOn": [
