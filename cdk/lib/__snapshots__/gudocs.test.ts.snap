@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
+exports[`The GuDocs stack matches the snapshot 1`] = `
 {
   "Metadata": {
     "gu:cdk:constructs": [
@@ -1280,6 +1280,55 @@ exports[`The StarterTypescriptLambda stack matches the snapshot 1`] = `
         ],
       },
       "Type": "AWS::IAM::Role",
+    },
+  },
+}
+`;
+
+exports[`The GuDocsCertificate stack matches the snapshot 1`] = `
+{
+  "Metadata": {
+    "gu:cdk:constructs": [
+      "GuDocsCertificate",
+      "GuCertificate",
+    ],
+    "gu:cdk:version": "TEST",
+  },
+  "Resources": {
+    "CertificateGudocscloudfront7EFFDEB4": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "DomainName": "gudocs.test.dev-gutools.co.uk",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "gudocs-cloudfront",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/gudocs2",
+          },
+          {
+            "Key": "Name",
+            "Value": "GuDocsAPI/CertificateGudocscloudfront",
+          },
+          {
+            "Key": "Stack",
+            "Value": "playground",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "ValidationMethod": "DNS",
+      },
+      "Type": "AWS::CertificateManager::Certificate",
+      "UpdateReplacePolicy": "Retain",
     },
   },
 }

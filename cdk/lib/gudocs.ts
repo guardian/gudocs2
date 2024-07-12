@@ -1,4 +1,5 @@
 import { GuApiGatewayWithLambdaByPath, GuScheduledLambda } from '@guardian/cdk';
+import { GuCertificate } from '@guardian/cdk/lib/constructs/acm';
 import type { GuStackProps } from '@guardian/cdk/lib/constructs/core';
 import { GuStack, GuStringParameter } from '@guardian/cdk/lib/constructs/core';
 import { GuVpc } from '@guardian/cdk/lib/constructs/ec2/vpc'
@@ -11,6 +12,21 @@ import { Runtime } from 'aws-cdk-lib/aws-lambda';
 
 
 const APP_NAME = 'gudocs';
+
+interface GuDocsCertificateStackProps extends GuStackProps {
+	domainName: string;
+}
+
+export class GuDocsCertificate extends GuStack {
+	constructor(scope: App, id: string, props: GuDocsCertificateStackProps) {
+		super(scope, id, props);
+
+		new GuCertificate(this, {
+			domainName: props.domainName,
+			app: "gudocs-cloudfront",
+		});
+	}
+}
 
 export class GuDocs extends GuStack {
 	constructor(
