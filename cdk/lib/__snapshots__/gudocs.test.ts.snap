@@ -106,14 +106,14 @@ exports[`The GuDocs stack matches the snapshot 1`] = `
     },
     "DomainName": {
       "Properties": {
+        "CertificateArn": {
+          "Ref": "CloudFrontCertificateArn",
+        },
         "DomainName": "gudocs.test.dev-gutools.co.uk",
         "EndpointConfiguration": {
           "Types": [
-            "REGIONAL",
+            "EDGE",
           ],
-        },
-        "RegionalCertificateArn": {
-          "Ref": "CloudFrontCertificateArn",
         },
         "Tags": [
           {

@@ -122,9 +122,9 @@ export class GuDocs extends GuStack {
 
 		const cfnDomainName = new CfnDomainName(this, 'DomainName', {
 			domainName: props.domainName,
-			regionalCertificateArn: cloudFrontCertificateArn.valueAsString,
+			certificateArn: cloudFrontCertificateArn.valueAsString,
 			endpointConfiguration: {
-				types: ['REGIONAL'],
+				types: ['EDGE'],
 			},
 		});
 
