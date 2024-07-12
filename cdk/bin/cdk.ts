@@ -10,7 +10,7 @@ const prodDomainName = "gudocs.gutools.co.uk";
 
 new GuDocsCertificate(
   app,
-  "GuDocsCertificates-CODE",
+  "gudocs2-certificates-CODE",
   {
     env: {
       region: "us-east-1",
@@ -23,7 +23,7 @@ new GuDocsCertificate(
 
 new GuDocsCertificate(
   app,
-  "GuDocsCertificates-PROD",
+  "gudocs2-certificates-PROD",
   {
     env: {
       region: "us-east-1",
