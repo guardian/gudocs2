@@ -1,0 +1,4 @@
+name: gudocs
+mappings:
+  - prefix: gudocs
+    port: 3037
