@@ -18,7 +18,7 @@ const getAuth = async () => {
 	return new google.auth.JWT(googleServiceAccountDetails.client_email, undefined, googleServiceAccountDetails.private_key, ['https://www.googleapis.com/auth/drive']);
 }
 
-const getConfig = async (): Promise<Config> => {
+export const getConfig = async (): Promise<Config> => {
 	const testFolder = "docsdata-test"
 	const prodFolder = "docsdata"
 	const s3domain = await configPromiseGetter("s3domain")
@@ -38,16 +38,14 @@ const getConfig = async (): Promise<Config> => {
 	}
 }
 
-export const doSchedule = async (): Promise<string> => {
+export const doSchedule = async (config: Config): Promise<string> => {
 	const auth = await getAuth();
-	const config = await getConfig();
 	return await updateChanged(config, auth).then(() => "Schedule done");
 };
 
-export const doPublish = async (fileId: string): Promise<string> => {
+export const doPublish = async (config: Config, fileId: string): Promise<string> => {
 	// todo: this should return HTML rather than JSON
 	const auth = await getAuth();
-	const config = await getConfig();
 	return await publishFile(fileId, config, auth).then(() => "File published")
 };
 
@@ -73,10 +71,9 @@ interface Response {
 	files: DocumentInfo[];
 }
 
-export async function renderDashboard() {
-	const config = await getConfig();
+export async function renderDashboard(config: Config) {
 	const state = await getStateDb();
-	const r = await readDocuments(undefined, undefined);
+	const r = await readDocuments(config, undefined, undefined);
 	return renderToString(index(
 		style,
 		state.lastSaved.toISOString(),
@@ -87,10 +84,9 @@ export async function renderDashboard() {
 	));
 }
 
-export async function readDocuments(lastModified: number | undefined, dev: string | undefined): Promise<Response> {
+export async function readDocuments(config: Config, lastModified: number | undefined, dev: string | undefined): Promise<Response> {
 	const state = await getStateDb();
 	const filesResponse = await getAllGuFiles(lastModified)
-	const config = await getConfig();
 	const files = filesResponse.items.map((file) => {
 		return ({
 		domainPermissions: file.domainPermissions ?? "unknown",

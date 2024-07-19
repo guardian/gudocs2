@@ -1,17 +1,29 @@
 import serverlessExpress from '@codegenie/serverless-express';
-import type { Handler } from 'aws-lambda'
+import type { APIGatewayProxyResult, Context } from 'aws-lambda'
 import type {
 	APIGatewayEventRequestContext,
 	APIGatewayProxyCallback,
 	APIGatewayProxyEvent,
 } from 'aws-lambda';
-import { doSchedule } from './actions';
+import { doSchedule, getConfig } from './actions';
 import { createApp } from "./app";
 import { IS_RUNNING_LOCALLY } from './awsIntegration';
 
-const app = createApp();
+const appPromise = createApp();
 
-export const handler: Handler = serverlessExpress({ app });
+async function setup(event: APIGatewayProxyEvent, context: Context, callback: APIGatewayProxyCallback) {
+	const app = await appPromise
+	const se = serverlessExpress<APIGatewayProxyEvent, APIGatewayProxyResult>({ app })
+	return se(event, context, callback)
+}
+  
+export const handler = async (
+	event: APIGatewayProxyEvent,
+	context: Context,
+	callback: APIGatewayProxyCallback,
+): Promise<unknown> => {
+	return await setup(event, context, callback)
+}
 
 export const scheduleHandler = async (
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- part of lambda API
@@ -21,13 +33,14 @@ export const scheduleHandler = async (
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- part of lambda API
 	callback: APIGatewayProxyCallback,
 ): Promise<string> => {
-	return await doSchedule()
+	const config = await getConfig()
+	return await doSchedule(config)
 };
 
 if (IS_RUNNING_LOCALLY) {
-	const PORT = 3030;
-	app.listen(PORT, () => {
+	const PORT = 3037;
+	void appPromise.then((app) => app.listen(PORT, () => {
 		console.log(`Listening on port ${PORT}`);
 		console.log(`Access via http://localhost:${PORT}`);
-	});
+	}));
 }

@@ -1,8 +1,9 @@
 // import serverlessExpress from '@codegenie/serverless-express';
-import { default as express } from "express";
-import { doPublish, doSchedule, readDocuments, renderDashboard } from './actions';
+import { default as express, type RequestHandler } from "express";
+import { doPublish, doSchedule, getConfig, readDocuments, renderDashboard } from './actions';
+import { getAuthMiddleware } from "./auth-midleware";
 
-export const createApp = (): express.Application => {
+export const createApp = async (): Promise<express.Application> => {
 
     const server = express();
     server.use(express.json());
@@ -13,29 +14,33 @@ export const createApp = (): express.Application => {
         response.status(500).json({ error: "Internal server error"})
     }
 
-    server.get("/documents", (_, response) => {
-        readDocuments(undefined, undefined).then((r) => {
+    const config = await getConfig();
+
+    const authMiddleWare = getAuthMiddleware(config.baseUrl) as RequestHandler<object, unknown, unknown, unknown> // Maybe can remove this cast at some point. See https://github.com/DefinitelyTyped/DefinitelyTyped/issues/50871
+
+    server.get("/documents", authMiddleWare, (_, response) => {
+        readDocuments(config, undefined, undefined).then((r) => {
             response.json(r);
         }).catch((err) => serverError(err, response))
     });
 
-    server.get("/", (_, response) => {
-        renderDashboard().then((r) => {
+    server.get("/", authMiddleWare, (_, response) => {
+        renderDashboard(config).then((r) => {
             response.send(r);
         }).catch((err) => serverError(err, response))
     });
 
-    server.post("/schedule", (_, response) => {
-        doSchedule().then((r) => {
+    server.post("/schedule", authMiddleWare, (_, response) => {
+        doSchedule(config).then((r) => {
             response.json({
                 result: r
             })
         }).catch((err) => serverError(err, response))
     });
 
-    server.post("/publish", (request: express.Request<unknown, unknown, { id: string}>, response) => {
+    server.post("/publish", authMiddleWare, (request: express.Request<unknown, unknown, { id: string}>, response) => {
         const fileId = request.body.id;
-        doPublish(fileId).then(() => {
+        doPublish(config, fileId).then(() => {
             response.redirect("/")
         }).catch((err) => serverError(err, response))
     });
