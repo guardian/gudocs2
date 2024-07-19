@@ -45,6 +45,6 @@
 		"build": "yarn esbuild --bundle --platform=node --target=node18 --outfile=dist/index.js src/index.ts",
 		"lint": "eslint . --ext .js,.jsx,.ts,.tsx",
 		"package": "cd dist; zip -qr ../cdk/gudocs2.zip ./*",
-		"start": "tsx src/lambda.ts"
+		"start": "tsx src/index.ts"
 	}
 }
