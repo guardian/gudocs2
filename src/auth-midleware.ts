@@ -1,8 +1,7 @@
-//import { userHasPermission } from "../permissionCheck";
 import type { NextFunction, Request, Response } from "express";
 import { LOGIN_GUTOOLS } from "./constants";
 import { getVerifiedUserEmail } from "./panDomainAuth";
-
+import { userHasPermission } from "./permissionCheck";
 
 const MISSING_AUTH_COOKIE_MESSAGE =
   "pan-domain auth cookie missing, invalid or expired";
@@ -30,17 +29,17 @@ export const getAuthMiddleware =
             .redirect(`${LOGIN_GUTOOLS}/login?returnUrl=${encodeURIComponent(baseUrl)}`);
     }
 
-    //if (await userHasPermission(maybeAuthenticatedEmail)) {
+    if (await userHasPermission(maybeAuthenticatedEmail)) {
       request.userEmail = maybeAuthenticatedEmail;
       return next();
-    // }
+    }
 
-    // const NO_PINBOARD_PERMISSION_MESSAGE =
-    //   "You do not have permission to use PinBoard";
+    const NO_GUDOCS_PERMISSION_MESSAGE =
+      "You do not have permission to use GuDocs. If you believe this is a mistake please contact Central Production.";
 
-    // return sendErrorAsOk
-    //   ? response.send(`console.log('${NO_PINBOARD_PERMISSION_MESSAGE}')`)
-    //   : response
-    //       .status(HttpStatusCodes.FORBIDDEN)
-    //       .send(NO_PINBOARD_PERMISSION_MESSAGE);
+    return sendErrorAsOk
+      ? response.send(`console.log('${NO_GUDOCS_PERMISSION_MESSAGE}')`)
+      : response
+          .status(403)
+          .send(NO_GUDOCS_PERMISSION_MESSAGE);
   };
