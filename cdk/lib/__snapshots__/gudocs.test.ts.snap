@@ -1236,6 +1236,11 @@ exports[`The GuDocs stack matches the snapshot 1`] = `
               },
             },
             {
+              "Action": "s3:GetObject",
+              "Effect": "Allow",
+              "Resource": "arn:aws:s3:::permissions-cache/TEST",
+            },
+            {
               "Action": [
                 "dynamodb:BatchGetItem",
                 "dynamodb:GetRecords",

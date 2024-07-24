@@ -77,6 +77,15 @@ export class GuDocs extends GuStack {
 			],
 		})
 
+		const permissionsBucketPolicy = new PolicyStatement({
+			actions: [
+				"s3:GetObject",
+			],
+			resources: [
+				`arn:aws:s3:::permissions-cache/${this.stage}`,
+			],
+		})
+
 		const sharedParametersPolicy = new PolicyStatement({
 			actions: [
 				"ssm:GetParametersByPath",
@@ -96,6 +105,7 @@ export class GuDocs extends GuStack {
 		});
 		serverlessExpressLambda.addToRolePolicy(s3BucketPolicy)
 		serverlessExpressLambda.addToRolePolicy(sharedParametersPolicy)
+		serverlessExpressLambda.addToRolePolicy(permissionsBucketPolicy)
 
 		const gateway = new GuApiGatewayWithLambdaByPath(this, {
 			app: "testing",
