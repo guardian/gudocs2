@@ -2,6 +2,7 @@
 import { default as express, type RequestHandler } from "express";
 import { doPublish, doSchedule, getConfig, readDocuments, renderDashboard } from './actions';
 import { getAuthMiddleware } from "./auth-midleware";
+import { IS_RUNNING_LOCALLY } from "./awsIntegration";
 
 export const createApp = async (): Promise<express.Application> => {
 
@@ -30,13 +31,15 @@ export const createApp = async (): Promise<express.Application> => {
         }).catch((err) => serverError(err, response))
     });
 
-    server.post("/schedule", authMiddleWare, (_, response) => {
-        doSchedule(config).then((r) => {
-            response.json({
-                result: r
-            })
-        }).catch((err) => serverError(err, response))
-    });
+    if (IS_RUNNING_LOCALLY) {
+        server.post("/schedule", (_, response) => {
+            doSchedule(config).then((r) => {
+                response.json({
+                    result: r
+                })
+            }).catch((err) => serverError(err, response))
+        });
+    }
 
     server.post("/publish", authMiddleWare, (request: express.Request<unknown, unknown, { id: string}>, response) => {
         const fileId = request.body.id;
