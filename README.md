@@ -5,6 +5,8 @@ Google Docs to S3 uploader
 * Google Docs -> ArchieML -> S3
 * Google Sheets -> CSV -> JSON -> S3
 
+Description of how users users interact with the service
+
 ## Moving parts
 
 The application effectively has three functions:
@@ -40,3 +42,16 @@ scheduleLambda --- |Once per minute| events[CloudWatch Events]
 
 s3 --> Fastly --> Readers
 ```
+
+## Running locally
+
+There is no separate DynamoDb table or S3 bucket for local development, so when you run this locally you will be using the CODE resources. This does mean that you may need to pause the CODE schedule lambda if you want to test the schedule function without interference from CODE.
+
+* Fetch [Janus](https://janus.gutools.co.uk/credentials?permissionId=interactives-dev&tzOffset=1) credentials for Interactives account
+* Run `scripts/setup` to configure nginx and install yarn dependencies
+* Run `yarn start` to start the application
+* The UI should now be available at https://gudocs.local.dev-gutools.co.uk
+
+To test the schedule function, there is a convenience HTTP endpoint `/schedule` which is only available locally:
+
+`curl -X POST http://localhost:3037/schedule`
