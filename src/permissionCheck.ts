@@ -32,7 +32,7 @@ const getGuDocsPermissionsOverrides = (S3: S3) =>
         const allPermissions = JSON.parse(Body) as Permission[];
         return allPermissions.find(
           ({ permission }) =>
-            permission.app === "gudocs" && permission.name === "gudocs-access"
+            permission.app === "gudocs" && permission.name === "gudocs_access"
         )?.overrides ?? [];
       });
 
