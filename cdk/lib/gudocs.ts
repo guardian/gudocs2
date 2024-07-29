@@ -82,7 +82,7 @@ export class GuDocs extends GuStack {
 				"s3:GetObject",
 			],
 			resources: [
-				`arn:aws:s3:::permissions-cache/${this.stage}`,
+				`arn:aws:s3:::permissions-cache/${this.stage}/*`,
 			],
 		})
 
