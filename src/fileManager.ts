@@ -77,7 +77,7 @@ export async function getAllGuFiles(start?: number): Promise<PaginatedResult<Fil
         },
         KeyConditionExpression: "#t = :type AND lastModified > :lastModified",
         ScanIndexForward: false,
-        Limit: 10,
+        Limit: 50,
     })
     const lastEvaluatedKey = results.LastEvaluatedKey
     const token = lastEvaluatedKey !== undefined && typeof lastEvaluatedKey['key'] === "string" ? lastEvaluatedKey['key'] : undefined
