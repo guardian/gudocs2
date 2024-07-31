@@ -2,7 +2,6 @@ import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import archieml from 'archieml'
 import type { JWT } from 'google-auth-library'
 import type { drive_v2, sheets_v4 } from 'googleapis';
-import Papa from 'papaparse'
 import { standardAwsConfig } from './awsIntegration';
 import * as drive from './drive'
 import { delay, notEmpty } from './util'
@@ -119,11 +118,15 @@ async function fetchSheetJSON(sheet: sheets_v4.Schema$Sheet, exportLinks: drive_
     if (!notEmpty(exportLinks)) {
         throw new Error("Missing export links")
     }
-    const response = await drive.getSheet(id, auth) // sheet.properties.sheetId - is that the individual sheet rather than the Spreadsheet?
-    const text = await response.data.text();
-    const csv = cleanRaw(title, text);
-    const json = Papa.parse(csv, {'header': sheet.properties?.title !== 'tableDataSheet'}).data;
-    return {[sheet.properties?.title ?? ""]: json};
+    const response = await drive.getSheet(id, sheet.properties?.title ?? "", auth)
+    if (sheet.properties?.title !== 'tableDataSheet') {
+        const headings = response.data.values?.[0] ?? [];
+        return {[sheet.properties?.title ?? ""]: response.data.values?.slice(1).map((row) => {
+            return Object.fromEntries<string>(headings.map((k, i) => [k, row[i]]));
+        }) ?? [] }
+    } else {
+        return {[sheet.properties.title]: response.data.values as string[][] }
+    }
 }
 
 async function fetchSpreadsheetJSON(file: FileJSON, auth: JWT): Promise<{'sheets': Record<string, Array<Record<string, string>> | string[][]>}> {
@@ -138,7 +141,6 @@ async function fetchSpreadsheetJSON(file: FileJSON, auth: JWT): Promise<{'sheets
         file.properties = {
             isTable: sheetJSONs.findIndex(sheetJSON => sheetJSON['tableDataSheet'] !== undefined) > -1
         }
-
         return {
             sheets: sheetJSONs.reduce((a, b) => ({ ...a, ...b, }), {})
         };
