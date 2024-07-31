@@ -108,12 +108,6 @@ async function fetcDocJSON(id: string, title: string, auth: JWT): Promise<object
     return archieml.load(cleanRaw(title, doc.data));
 }
 
-// Some magic numbers that seem to make Google happy
-const delayInitial = 500;
-const delayExp = 1.6;
-const delayCutoff = 8; // After this many sheets, just wait delayMax
-const delayMax = 20000;
-
 async function fetchSheetJSON(sheet: sheets_v4.Schema$Sheet, exportLinks: drive_v2.Schema$File['exportLinks'], id: string, title: string, auth: JWT) {
     if (!notEmpty(exportLinks)) {
         throw new Error("Missing export links")
@@ -129,12 +123,12 @@ async function fetchSheetJSON(sheet: sheets_v4.Schema$Sheet, exportLinks: drive_
     }
 }
 
+const requestSpacing = 200;
+
 async function fetchSpreadsheetJSON(file: FileJSON, auth: JWT): Promise<{'sheets': Record<string, Array<Record<string, string>> | string[][]>}> {
     const spreadsheet = await drive.getSpreadsheet(file.metaData.id, auth);
-    let ms = 0;
     const delays = spreadsheet.data.sheets?.map((sheet, n) => {
-        ms += n > delayCutoff ? delayMax : delayInitial * Math.pow(delayExp, n);
-        return delay(ms, () => fetchSheetJSON(sheet, file.metaData.exportLinks, file.metaData.id, file.metaData.title, auth));
+        return delay((n + 1) * requestSpacing, () => fetchSheetJSON(sheet, file.metaData.exportLinks, file.metaData.id, file.metaData.title, auth));
     }) ?? [];
     try {
         const sheetJSONs = await Promise.all(delays.map(d => d.promise));
