@@ -126,7 +126,7 @@ async function fetchSheetJSON(sheet: sheets_v4.Schema$Sheet, exportLinks: drive_
     return {[sheet.properties?.title ?? ""]: json};
 }
 
-async function fetchSpreadsheetJSON(file: FileJSON, auth: JWT) {
+async function fetchSpreadsheetJSON(file: FileJSON, auth: JWT): Promise<{'sheets': Record<string, Array<Record<string, string>> | string[][]>}> {
     const spreadsheet = await drive.getSpreadsheet(file.metaData.id, auth);
     let ms = 0;
     const delays = spreadsheet.data.sheets?.map((sheet, n) => {
@@ -140,9 +140,7 @@ async function fetchSpreadsheetJSON(file: FileJSON, auth: JWT) {
         }
 
         return {
-            sheets: {
-                ...sheetJSONs
-            }
+            sheets: sheetJSONs.reduce((a, b) => ({ ...a, ...b, }), {})
         };
     } catch (err) {
         delays.forEach(d => d.cancel());
