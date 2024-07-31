@@ -116,7 +116,7 @@ async function fetchSheetJSON(sheet: sheets_v4.Schema$Sheet, exportLinks: drive_
     if (sheet.properties?.title !== 'tableDataSheet') {
         const headings = response.data.values?.[0] ?? [];
         return {[sheet.properties?.title ?? ""]: response.data.values?.slice(1).map((row) => {
-            return Object.fromEntries<string>(headings.map((k, i) => [k, row[i]]));
+            return Object.fromEntries<string>(headings.map((k, i) => [k, row[i] ?? ""]));
         }) ?? [] }
     } else {
         return {[sheet.properties.title]: response.data.values as string[][] }
