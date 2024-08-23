@@ -106,7 +106,7 @@ export async function saveGuFile(file: FileJSON): Promise<boolean> {
         ExpressionAttributeValues: {
             ':limit': lastModified,
         },
-        ConditionExpression: "lastModified <= :limit"
+        ConditionExpression: "attribute_not_exists(lastModified) or lastModified <= :limit"
     });
 
     return true;
