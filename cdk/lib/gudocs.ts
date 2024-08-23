@@ -121,6 +121,11 @@ export class GuDocs extends GuStack {
 				httpMethod: "POST",
 				lambda: serverlessExpressLambda,
 				},
+				{
+				path: "/legacy",
+				httpMethod: "POST",
+				lambda: serverlessExpressLambda,
+				},
 			],
 		});
 
