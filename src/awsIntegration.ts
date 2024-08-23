@@ -23,6 +23,13 @@ const paramStorePromiseGetter =
         Name,
         WithDecryption,
       })
+      .catch((err) => {
+        if (err.__type === 'ParameterNotFound') {
+          return {}
+        } else {
+          throw err
+        }
+      })
       .then((result) => {
         const value = result.Parameter?.Value;
         if (value === undefined) {
