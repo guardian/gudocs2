@@ -34,7 +34,11 @@ export const scheduleHandler = async (
 	callback: APIGatewayProxyCallback,
 ): Promise<string> => {
 	const config = await getConfig()
-	return await doSchedule(config)
+	if (config.scheduleEnabled) {
+		return await doSchedule(config)
+	} else {
+		return "Schedule disabled"
+	}
 };
 
 if (IS_RUNNING_LOCALLY) {

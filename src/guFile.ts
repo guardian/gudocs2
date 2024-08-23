@@ -15,6 +15,7 @@ export interface Config {
     s3bucket: string;
     client_email: string;
     baseUrl: string;
+    scheduleEnabled: boolean;
 }
 
 const s3Client = new S3Client(standardAwsConfig);

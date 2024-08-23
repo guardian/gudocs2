@@ -26,6 +26,7 @@ export const getConfig = async (): Promise<Config> => {
 	const require_domain_permissions = await configPromiseGetter("require_domain_permissions")
 	const client_email = await configPromiseGetter("client_email")
 	const baseUrl = await configPromiseGetter("base_url")
+	const scheduleEnabled = await configPromiseGetter("schedule_enabled")
 
 	return {
 		testFolder,
@@ -35,6 +36,7 @@ export const getConfig = async (): Promise<Config> => {
 		s3bucket,
 		client_email,
 		baseUrl,
+		scheduleEnabled: scheduleEnabled.toLowerCase() === "true",
 	}
 }
 
