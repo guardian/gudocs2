@@ -16,6 +16,7 @@ export interface Config {
     client_email: string;
     baseUrl: string;
     scheduleEnabled: boolean;
+    legacyKey: string;
 }
 
 const s3Client = new S3Client(standardAwsConfig);

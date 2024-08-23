@@ -89,7 +89,7 @@ export async function getAllGuFiles(start?: number): Promise<PaginatedResult<Fil
     }
 }
 
-async function saveGuFile(file: FileJSON): Promise<boolean> {
+export async function saveGuFile(file: FileJSON): Promise<boolean> {
     const lastModified = notEmpty(file.metaData.modifiedDate) ? new Date(file.metaData.modifiedDate).getTime() : new Date().getTime();
 
     const Item = {
