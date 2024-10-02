@@ -89,18 +89,24 @@ export async function getAllGuFiles(start?: number): Promise<PaginatedResult<Fil
     }
 }
 
-async function saveGuFile(file: FileJSON): Promise<boolean> {
+export async function saveGuFile(file: FileJSON): Promise<boolean> {
+    const lastModified = notEmpty(file.metaData.modifiedDate) ? new Date(file.metaData.modifiedDate).getTime() : new Date().getTime();
+
     const Item = {
         "key": `file:${file.metaData.id}`,
         file: file,
-        lastModified: notEmpty(file.metaData.modifiedDate) ? new Date(file.metaData.modifiedDate).getTime() : new Date().getTime(),
+        lastModified,
         "type": "file",
     };
 
     // todo: handle errors?
     await dynamo.put({
         TableName: DYNAMODB_TABLE,
-        Item
+        Item,
+        ExpressionAttributeValues: {
+            ':limit': lastModified,
+        },
+        ConditionExpression: "attribute_not_exists(lastModified) or lastModified <= :limit"
     });
 
     return true;

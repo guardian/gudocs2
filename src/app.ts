@@ -3,6 +3,8 @@ import { default as express, type RequestHandler } from "express";
 import { doPublish, doSchedule, getConfig, readDocuments, renderDashboard } from './actions';
 import { getAuthMiddleware } from "./auth-midleware";
 import { IS_RUNNING_LOCALLY } from "./awsIntegration";
+import { saveGuFile } from "./fileManager";
+import type { FileJSON } from "./guFile";
 
 export const createApp = async (): Promise<express.Application> => {
 
@@ -46,6 +48,18 @@ export const createApp = async (): Promise<express.Application> => {
         doPublish(config, fileId).then(() => {
             response.redirect("/")
         }).catch((err) => serverError(err, response))
+    });
+
+    server.post("/legacy", (request: express.Request<unknown, unknown, FileJSON>, response) => {
+        if (request.query['api-key'] === config.legacyKey) {
+            saveGuFile(request.body).then(() => {
+                response.send("ok")
+            }).catch((err) => serverError(err, response))
+        } else {
+          response
+            .status(403)
+            .send("Invalid api-key");
+        }
     });
 
     return server

@@ -13,6 +13,14 @@ export const standardAwsConfig = {
     : fromNodeProviderChain(),
 };
 
+export const s3AwsConfig = {
+  region: STAGE === "PROD" ? "us-east-1" : AWS_REGION,
+  credentials: IS_RUNNING_LOCALLY
+    ? fromIni({ profile: LOCAL_PROFILE })
+    : fromNodeProviderChain(),
+};
+
+
 const ssm = new SSM(standardAwsConfig);
 
 const paramStorePromiseGetter =
@@ -22,6 +30,13 @@ const paramStorePromiseGetter =
       .getParameter({
         Name,
         WithDecryption,
+      })
+      .catch((err) => {
+        if (err.__type === 'ParameterNotFound') {
+          return {}
+        } else {
+          throw err
+        }
       })
       .then((result) => {
         const value = result.Parameter?.Value;
