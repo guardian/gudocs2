@@ -1,6 +1,6 @@
 import type { GaxiosPromise } from 'gaxios'
 import type { JWT } from 'google-auth-library'
-import type { drive_v2} from 'googleapis';
+import type { drive_v2, sheets_v4} from 'googleapis';
 import { google } from 'googleapis'
 import { notEmpty, numberOrZero } from './util';
 
@@ -68,10 +68,6 @@ export function getDoc(fileId: string, auth: JWT): GaxiosPromise<string>  {
     }) as GaxiosPromise<string>
 }
 
-export function getSheet(fileId: string, auth: JWT): GaxiosPromise<Blob> {
-    return drive.files.export({
-        auth,
-        fileId: fileId,
-        mimeType: 'text/csv'
-    }) as GaxiosPromise<Blob>
+export async function getSheet(spreadsheetId: string, sheetName: string, auth: JWT): GaxiosPromise<sheets_v4.Schema$ValueRange> {
+    return await sheets.spreadsheets.values.get({ auth, spreadsheetId, range: `${sheetName}!A:ZZ`, valueRenderOption: 'FORMATTED_VALUE' })
 }

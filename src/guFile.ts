@@ -2,7 +2,6 @@ import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import archieml from 'archieml'
 import type { JWT } from 'google-auth-library'
 import type { drive_v2, sheets_v4 } from 'googleapis';
-import Papa from 'papaparse'
 import { s3AwsConfig, standardAwsConfig } from './awsIntegration';
 import * as drive from './drive'
 import { delay, notEmpty } from './util'
@@ -111,40 +110,35 @@ async function fetcDocJSON(id: string, title: string, auth: JWT): Promise<object
     return archieml.load(cleanRaw(title, doc.data));
 }
 
-// Some magic numbers that seem to make Google happy
-const delayInitial = 500;
-const delayExp = 1.6;
-const delayCutoff = 8; // After this many sheets, just wait delayMax
-const delayMax = 20000;
-
 async function fetchSheetJSON(sheet: sheets_v4.Schema$Sheet, exportLinks: drive_v2.Schema$File['exportLinks'], id: string, title: string, auth: JWT) {
     if (!notEmpty(exportLinks)) {
         throw new Error("Missing export links")
     }
-    const response = await drive.getSheet(id, auth) // sheet.properties.sheetId - is that the individual sheet rather than the Spreadsheet?
-    const text = await response.data.text();
-    const csv = cleanRaw(title, text);
-    const json = Papa.parse(csv, {'header': sheet.properties?.title !== 'tableDataSheet'}).data;
-    return {[sheet.properties?.title ?? ""]: json};
+    const response = await drive.getSheet(id, sheet.properties?.title ?? "", auth)
+    if (sheet.properties?.title !== 'tableDataSheet') {
+        const headings = response.data.values?.[0] ?? [];
+        return {[sheet.properties?.title ?? ""]: response.data.values?.slice(1).map((row) => {
+            return Object.fromEntries<string>(headings.map((k, i) => [k, row[i] ?? ""]));
+        }) ?? [] }
+    } else {
+        return {[sheet.properties.title]: response.data.values as string[][] }
+    }
 }
 
-async function fetchSpreadsheetJSON(file: FileJSON, auth: JWT) {
+const requestSpacing = 200;
+
+async function fetchSpreadsheetJSON(file: FileJSON, auth: JWT): Promise<{'sheets': Record<string, Array<Record<string, string>> | string[][]>}> {
     const spreadsheet = await drive.getSpreadsheet(file.metaData.id, auth);
-    let ms = 0;
     const delays = spreadsheet.data.sheets?.map((sheet, n) => {
-        ms += n > delayCutoff ? delayMax : delayInitial * Math.pow(delayExp, n);
-        return delay(ms, () => fetchSheetJSON(sheet, file.metaData.exportLinks, file.metaData.id, file.metaData.title, auth));
+        return delay((n + 1) * requestSpacing, () => fetchSheetJSON(sheet, file.metaData.exportLinks, file.metaData.id, file.metaData.title, auth));
     }) ?? [];
     try {
         const sheetJSONs = await Promise.all(delays.map(d => d.promise));
         file.properties = {
             isTable: sheetJSONs.findIndex(sheetJSON => sheetJSON['tableDataSheet'] !== undefined) > -1
         }
-
         return {
-            sheets: {
-                ...sheetJSONs
-            }
+            sheets: sheetJSONs.reduce((a, b) => ({ ...a, ...b, }), {})
         };
     } catch (err) {
         delays.forEach(d => d.cancel());

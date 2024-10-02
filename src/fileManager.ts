@@ -168,6 +168,7 @@ export async function publishFile(fileId: string, config: Config, auth: JWT): Pr
 
 export async function updateChanged(config: Config, auth: JWT): Promise<unknown> {
     const state = await getStateDb()
+    // todo: add logging
     const changes = await drive.fetchRecentChanges(1 + Number(state.lastChangeId), auth);
     const guFiles = await enrichDriveFilesFromCache(changes.items);
     const updatedJson = await updateFiles(guFiles, false, config, auth);
