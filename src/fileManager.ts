@@ -170,6 +170,7 @@ export async function updateChanged(config: Config, auth: JWT): Promise<unknown>
     const state = await getStateDb()
     // todo: add logging
     const changes = await drive.fetchRecentChanges(1 + Number(state.lastChangeId), auth);
+    console.log('previousLastChangeId (from Dynamo)', state.lastChangeId, 'currentLastChangeId (from Google)', changes.largestChangeId)
     const guFiles = await enrichDriveFilesFromCache(changes.items);
     const updatedJson = await updateFiles(guFiles, false, config, auth);
     await saveGuFiles(updatedJson);
