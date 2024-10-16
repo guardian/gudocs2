@@ -99,17 +99,20 @@ export async function saveGuFile(file: FileJSON): Promise<boolean> {
         "type": "file",
     };
 
-    // todo: handle errors?
-    await dynamo.put({
-        TableName: DYNAMODB_TABLE,
-        Item,
-        ExpressionAttributeValues: {
-            ':limit': lastModified,
-        },
-        ConditionExpression: "attribute_not_exists(lastModified) or lastModified <= :limit"
-    });
-
-    return true;
+    try {
+        await dynamo.put({
+            TableName: DYNAMODB_TABLE,
+            Item,
+            ExpressionAttributeValues: {
+                ':limit': lastModified,
+            },
+            ConditionExpression: "attribute_not_exists(lastModified) or lastModified <= :limit"
+        });
+        return true;
+    } catch(e) {
+        console.error(`Failed to save file ${file.metaData.id} - ${file.metaData.title}`, e)
+        return false;
+    }
 }
 
 async function saveGuFiles(files: FileJSON[]): Promise<boolean[]> {
