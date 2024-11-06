@@ -33,10 +33,13 @@ export const scheduleHandler = async (
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- part of lambda API
 	callback: APIGatewayProxyCallback,
 ): Promise<string> => {
+	console.log("Starting scheduled lambda")
 	const config = await getConfig()
 	if (config.scheduleEnabled) {
+		console.log("Running schedule")
 		return await doSchedule(config)
 	} else {
+		console.log("Schedule disabled - skipping")
 		return "Schedule disabled"
 	}
 };
