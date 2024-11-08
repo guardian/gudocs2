@@ -17,6 +17,7 @@ export interface State {
 const dynamo = DynamoDBDocument.from(new DynamoDB(standardAwsConfig), { marshallOptions: { removeUndefinedValues: true }});
 
 export async function getStateDb(): Promise<State> {
+    console.log("Fetching state")
     const result = await dynamo.get({
         TableName: DYNAMODB_TABLE,
         Key: {
@@ -31,6 +32,7 @@ export async function getStateDb(): Promise<State> {
 }
 
 async function saveStateDb(lastChangeId: number): Promise<void> {
+    console.log("Storing state")
     const state = {
         key: "config",
         lastChangeId,
@@ -46,6 +48,7 @@ async function saveStateDb(lastChangeId: number): Promise<void> {
 }
 
 async function getGuFile(id: string): Promise<FileJSON | null> {
+    console.log(`Fetching ${id} from dynamodb`)
     const result = await dynamo.get({
         TableName: DYNAMODB_TABLE,
         Key: {
@@ -90,6 +93,7 @@ export async function getAllGuFiles(start?: number): Promise<PaginatedResult<Fil
 }
 
 export async function saveGuFile(file: FileJSON): Promise<boolean> {
+    console.log(`Saving ${file.metaData.id} - ${file.metaData.title} to dynamodb`)
     const lastModified = notEmpty(file.metaData.modifiedDate) ? new Date(file.metaData.modifiedDate).getTime() : new Date().getTime();
 
     const Item = {
@@ -110,7 +114,7 @@ export async function saveGuFile(file: FileJSON): Promise<boolean> {
         });
         return true;
     } catch(e) {
-        console.error(`Failed to save file ${file.metaData.id} - ${file.metaData.title}`, e)
+        console.error(`Failed to save file ${file.metaData.id} - ${file.metaData.title} (last modified = ${lastModified})`, e)
         return false;
     }
 }
@@ -171,14 +175,12 @@ export async function publishFile(fileId: string, config: Config, auth: JWT): Pr
 
 export async function updateChanged(config: Config, auth: JWT): Promise<unknown> {
     const state = await getStateDb()
-    // todo: add logging
+    console.log('Fetching changes since', state.lastChangeId)
     const changes = await drive.fetchRecentChanges(1 + Number(state.lastChangeId), auth);
-    console.log('previousLastChangeId (from Dynamo)', state.lastChangeId, 'currentLastChangeId (from Google)', changes.largestChangeId)
+    console.log('currentLastChangeId (from Google)', changes.largestChangeId)
     const guFiles = await enrichDriveFilesFromCache(changes.items);
     const updatedJson = await updateFiles(guFiles, false, config, auth);
     await saveGuFiles(updatedJson);
     await saveStateDb(changes.largestChangeId);
     return 
 }
-
-//}

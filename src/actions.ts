@@ -14,11 +14,13 @@ interface GoogleAccountDetails {
 }
 
 const getAuth = async () => {
+	console.log("Fetching auth")
 	const googleServiceAccountDetails = JSON.parse(await secretPromiseGetter("serviceAccountKey")) as GoogleAccountDetails;
 	return new google.auth.JWT(googleServiceAccountDetails.client_email, undefined, googleServiceAccountDetails.private_key, ['https://www.googleapis.com/auth/drive']);
 }
 
 export const getConfig = async (): Promise<Config> => {
+	console.log("Fetching config")
 	const testFolder = "docsdata-test"
 	const prodFolder = "docsdata"
 	const s3domain = await configPromiseGetter("s3domain")
