@@ -4,7 +4,7 @@ The gudocs tool allows visuals and interactive journalist to easily create JSON 
 
 For example, the [Men's football transfer window](https://www.theguardian.com/football/ng-interactive/2023/feb/01/mens-transfer-window-january-2023-premier-league-bundesliga-ligue-1-la-liga-serie-a) article is powered from [a JSON file](https://interactive.guim.co.uk/2023/tw-men-winter-2023/transfersData.json). This JSON file is generated from a spreadsheet by the gudocs tool.
 
-Journalists interact with the tool through the web interface at https://gudocs.gutools.co.uk. From this interface they can publish a document from Google Docs to S3. All documents that are shared with the relevant google service account are published automatically to the `docsdata-test` folder when they are modified.
+Journalists interact with the tool through the web interface at https://gudocs.gutools.co.uk. From this interface they can publish a document from Google Docs to S3. All documents that are shared with the relevant google service account (listed at the top of the web interface) are published automatically to the `docsdata-test` folder when they are modified. There is a button to publish manually to the `docsdata` folder. Both folders are publically accessible. Despite the name, as well as being used for testing `docsdata-test` is also sometimes used for published articles since it provides a live(ish) feed of the Google doc without the need for manually clicking publish.
 
 Google Docs are processed using [ArchieML](https://archieml.org/) before being written to S3. Google Sheets are written out as JSON using the column headings as the keys.
 
