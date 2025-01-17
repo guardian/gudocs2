@@ -59,7 +59,7 @@ To test the schedule function, there is a convenience HTTP endpoint `/schedule` 
 
 ## Deploying
 
-The application is two lambdas deployed using Riff-Raff.
+The application is two lambdas deployed [using Riff-Raff](https://riffraff.gutools.co.uk/deployment/history?projectName=interactives%3A%3Agudocs2).
 
 ## Basic functionality test
 
