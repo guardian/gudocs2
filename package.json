@@ -31,7 +31,7 @@
 		"@aws-sdk/credential-providers": "^3.621.0",
 		"@aws-sdk/lib-dynamodb": "^3.621.0",
 		"@codegenie/serverless-express": "^4.14.1",
-		"@guardian/pan-domain-node": "^1.2.0",
+		"@guardian/pan-domain-node": "^0.4.2",
 		"archieml": "^0.5.0",
 		"express": "^4.20.0",
 		"googleapis": "^131.0.0",
