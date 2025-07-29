@@ -178,6 +178,7 @@ export class GuDocs extends GuStack {
 		});
 		scheduledLambda.addToRolePolicy(s3BucketPolicy)
 		scheduledLambda.addToRolePolicy(sharedParametersPolicy)
+		scheduledLambda.addToRolePolicy(pandaS3BucketPolcy)
 
 		const table = new Table(this, 'Table', {
 			tableName: `${this.stack}-${this.stage}-${app}`,
