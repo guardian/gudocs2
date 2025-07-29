@@ -178,6 +178,9 @@ export class GuDocs extends GuStack {
 		});
 		scheduledLambda.addToRolePolicy(s3BucketPolicy)
 		scheduledLambda.addToRolePolicy(sharedParametersPolicy)
+		// while the scheduled lambda does not need to do authentication, 
+		// it still requires the permission for pan-domain-node package
+		// due to the fact their code are bundle together
 		scheduledLambda.addToRolePolicy(pandaS3BucketPolcy)
 
 		const table = new Table(this, 'Table', {
