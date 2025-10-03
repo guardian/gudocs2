@@ -15,12 +15,12 @@ jobs:
           node-version-file: .nvmrc
           cache: 'yarn'
       - run: |
-          yarn install
+          yarn install --frozen-lockfile
           yarn build
           yarn package
       - name: CDK synth
         run: |
-          yarn install
+          yarn install --frozen-lockfile
           yarn tsc
           yarn lint
           yarn test
