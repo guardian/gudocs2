@@ -2,6 +2,7 @@ import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en'
 import React from 'react';
 import type { DocumentInfo } from '../actions';
+import { pandaDomain } from "../constants";
 
 TimeAgo.addDefaultLocale(en)
 const timeAgo = new TimeAgo('en-GB')
@@ -75,7 +76,7 @@ export const index = (css: string, lastSaved: string, email: string, domainPermi
 			</thead>
 
 			<tbody>
-				{ files.map((file) => 
+				{ files.map((file) =>
 				<tr key={file.id} className={`domainpermissions--${file.domainPermissions}`}>
 					<td><img src={ file.iconLink ?? undefined }/>{ file.title }</td>
 					<td title={ file.modifiedDate ?? undefined }>{ typeof file.modifiedDate === "string" ? timeAgo.format(new Date(file.modifiedDate)) : undefined }</td>
@@ -110,5 +111,6 @@ export const index = (css: string, lastSaved: string, email: string, domainPermi
 			</tbody>
 		</table>
 	</div>
+	<img style={{display: "none"}} src={`https://user-telemetry.${pandaDomain}/guardian-tool-accessed?app=gudocs2&path=/`}/>
 </body>
 </html>

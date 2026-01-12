@@ -12,10 +12,18 @@ export const AWS_REGION = "eu-west-1";
 
 export const DYNAMODB_TABLE = `${STACK}-${STAGE === "LOCAL" ? "CODE" : STAGE}-${APP}`
 
+const pandaDomains: { [stage in Stage]: string } = {
+    PROD: "gutools.co.uk",
+    CODE: "code.dev-gutools.co.uk",
+    LOCAL: "local.dev-gutools.co.uk",
+} as const;
+
+export const pandaDomain = pandaDomains[STAGE]
+
 const pandaConfigFilenameLookup: { [stage in Stage]: string } = {
-    PROD: "gutools.co.uk.settings",
-    CODE: "code.dev-gutools.co.uk.settings",
-    LOCAL: "local.dev-gutools.co.uk.settings",
+    PROD: `${pandaDomains["PROD"]}.settings`,
+    CODE: `${pandaDomains["CODE"]}.settings`,
+    LOCAL: `${pandaDomains["LOCAL"]}.settings`,
   } as const;
   
   export const pandaSettingsBucketName = "pan-domain-auth-settings";
