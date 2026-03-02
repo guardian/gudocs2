@@ -43,7 +43,7 @@ export class GuDocs extends GuStack {
 
 		const app = "gudocs";
 		const vpc = GuVpc.fromIdParameter(this, "vpc");
-		const runtime = Runtime.NODEJS_18_X;
+		const runtime = Runtime.NODEJS_24_X;
 		const fileName = "gudocs2.zip";
 		const environment = {
 			"Stage": this.stage,

@@ -770,7 +770,7 @@ exports[`The GuDocs stack matches the snapshot 1`] = `
             "Arn",
           ],
         },
-        "Runtime": "nodejs18.x",
+        "Runtime": "nodejs24.x",
         "Tags": [
           {
             "Key": "App",
@@ -1218,7 +1218,7 @@ exports[`The GuDocs stack matches the snapshot 1`] = `
             "Arn",
           ],
         },
-        "Runtime": "nodejs18.x",
+        "Runtime": "nodejs24.x",
         "Tags": [
           {
             "Key": "App",
