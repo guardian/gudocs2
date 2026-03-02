@@ -2,7 +2,7 @@
   "extends": "@guardian/tsconfig",
   "compilerOptions": {
     "jsx": "react",
-    "module": "commonjs",
+    "module": "nodenext",
     "esModuleInterop": true,
     "strict": true,
 // We have started with a very strict set of compiler options. If

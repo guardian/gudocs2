@@ -1,5 +1,5 @@
 import serverlessExpress from '@codegenie/serverless-express';
-import type { APIGatewayProxyResult, Context } from 'aws-lambda'
+import type { APIGatewayProxyResult } from 'aws-lambda'
 import type {
 	APIGatewayEventRequestContext,
 	APIGatewayProxyCallback,
@@ -11,19 +11,9 @@ import { IS_RUNNING_LOCALLY } from './awsIntegration';
 
 const appPromise = createApp();
 
-async function setup(event: APIGatewayProxyEvent, context: Context, callback: APIGatewayProxyCallback) {
-	const app = await appPromise
-	const se = serverlessExpress<APIGatewayProxyEvent, APIGatewayProxyResult>({ app })
-	return se(event, context, callback)
-}
-  
-export const handler = async (
-	event: APIGatewayProxyEvent,
-	context: Context,
-	callback: APIGatewayProxyCallback,
-): Promise<unknown> => {
-	return await setup(event, context, callback)
-}
+const app = await appPromise;
+
+export const handler = serverlessExpress<APIGatewayProxyEvent, APIGatewayProxyResult>({ app })
 
 export const scheduleHandler = async (
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- part of lambda API
