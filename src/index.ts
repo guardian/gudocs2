@@ -28,9 +28,7 @@ export const scheduleHandler = async (
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- part of lambda API
 	event: APIGatewayProxyEvent,
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- part of lambda API
-	context: APIGatewayEventRequestContext,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- part of lambda API
-	callback: APIGatewayProxyCallback,
+	context: APIGatewayEventRequestContext
 ): Promise<string> => {
 	console.log("Starting scheduled lambda")
 	const config = await getConfig()
