@@ -11,27 +11,24 @@ import { IS_RUNNING_LOCALLY } from './awsIntegration';
 
 const appPromise = createApp();
 
-async function setup(event: APIGatewayProxyEvent, context: Context, callback: APIGatewayProxyCallback) {
+async function setup(event: APIGatewayProxyEvent, context: Context) {
 	const app = await appPromise
 	const se = serverlessExpress<APIGatewayProxyEvent, APIGatewayProxyResult>({ app })
-	return se(event, context, callback)
+	return se(event, context);
 }
-  
+
 export const handler = async (
 	event: APIGatewayProxyEvent,
 	context: Context,
-	callback: APIGatewayProxyCallback,
 ): Promise<unknown> => {
-	return await setup(event, context, callback)
+	return await setup(event, context);
 }
 
 export const scheduleHandler = async (
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- part of lambda API
 	event: APIGatewayProxyEvent,
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- part of lambda API
-	context: APIGatewayEventRequestContext,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- part of lambda API
-	callback: APIGatewayProxyCallback,
+	context: APIGatewayEventRequestContext
 ): Promise<string> => {
 	console.log("Starting scheduled lambda")
 	const config = await getConfig()
