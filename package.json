@@ -39,6 +39,9 @@
 		"react": "^18.3.1",
 		"react-dom": "^18.3.1"
 	},
+	"resolutions": {
+		"express/path-to-regexp": "0.1.13"
+	},
 	"scripts": {
 		"build": "yarn esbuild --bundle --platform=node --target=node24 --outfile=dist/index.js src/index.ts",
 		"lint": "eslint . --ext .js,.jsx,.ts,.tsx",
