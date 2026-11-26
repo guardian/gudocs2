@@ -18,9 +18,12 @@ export const getAuthMiddleware =
     next: NextFunction
   ) => {
     const maybeCookieHeader = request.header("Cookie");
-    const maybeAuthenticatedEmail = await getVerifiedUserEmail(
-      maybeCookieHeader
-    );
+    let maybeAuthenticatedEmail: string | void;
+    try {
+      maybeAuthenticatedEmail = await getVerifiedUserEmail(maybeCookieHeader);
+    } catch (error) {
+      return next(error);
+    }
 
     if (typeof maybeAuthenticatedEmail !== "string") {
       return sendErrorAsOk
