@@ -69,5 +69,6 @@ export function getDoc(fileId: string, auth: JWT): GaxiosPromise<string>  {
 }
 
 export async function getSheet(spreadsheetId: string, sheetName: string, auth: JWT): GaxiosPromise<sheets_v4.Schema$ValueRange> {
-    return await sheets.spreadsheets.values.get({ auth, spreadsheetId, range: `${sheetName}!A:ZZ`, valueRenderOption: 'FORMATTED_VALUE' })
+    // the sheet name must be wrapped in quotes, otherwise characters like [ will fail parsing
+    return await sheets.spreadsheets.values.get({ auth, spreadsheetId, range: `'${sheetName}'!A:ZZ`, valueRenderOption: 'FORMATTED_VALUE' })
 }
