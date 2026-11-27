@@ -45,6 +45,7 @@
 	"scripts": {
 		"build": "yarn esbuild --bundle --platform=node --target=node24 --outfile=dist/index.js src/index.ts",
 		"lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+		"test": "tsx --test src/deadline.test.ts",
 		"package": "cd dist; zip -qr ../cdk/gudocs2.zip ./*",
 		"start": "tsx src/index.ts"
 	}

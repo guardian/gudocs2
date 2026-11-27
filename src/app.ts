@@ -3,6 +3,7 @@ import { default as express, type RequestHandler } from "express";
 import { doPublish, doSchedule, getConfig, readDocuments, renderDashboard } from './actions';
 import { getAuthMiddleware } from "./auth-midleware";
 import { IS_RUNNING_LOCALLY } from "./awsIntegration";
+import { DeadlineExceededError } from "./deadline";
 import { saveGuFile } from "./fileManager";
 import type { FileJSON } from "./guFile";
 
@@ -47,7 +48,13 @@ export const createApp = async (): Promise<express.Application> => {
         const fileId = request.body.id;
         doPublish(config, fileId).then(() => {
             response.redirect("/")
-        }).catch((err) => serverError(err, response))
+        }).catch((err) => {
+            if (err instanceof DeadlineExceededError) {
+                response.status(504).json({ error: err.message });
+            } else {
+                serverError(err, response);
+            }
+        })
     });
 
     server.post("/legacy", (request: express.Request<unknown, unknown, FileJSON>, response) => {

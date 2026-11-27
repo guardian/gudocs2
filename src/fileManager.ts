@@ -3,6 +3,8 @@ import { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
 import type { JWT } from 'google-auth-library'
 import { standardAwsConfig } from './awsIntegration';
 import { DYNAMODB_TABLE } from './constants';
+import { createDeadline, DeadlineExceededError, noopDeadline } from './deadline';
+import type { Deadline } from './deadline';
 import * as drive from './drive'
 import type { DriveFile } from './drive';
 import { fetchDomainPermissions, updateFileInS3 } from './guFile'
@@ -134,15 +136,16 @@ async function enrichDriveFilesFromCache(driveFiles: DriveFile[]): Promise<FileJ
     })));
 }
 
-async function updateFiles(guFiles: FileJSON[], prod: boolean, config: Config, auth: JWT): Promise<FileJSON[]> {
+async function updateFiles(guFiles: FileJSON[], prod: boolean, config: Config, auth: JWT, deadline: Deadline): Promise<FileJSON[]> {
     return await Promise.all(
         guFiles.map(fileJson => {
             const id = fileJson.metaData.id;
             const title = fileJson.metaData.title;
-            return updateFileInS3(prod, config, auth, fileJson)
+            return updateFileInS3(prod, config, auth, fileJson, deadline)
                 .catch(err => {
                     console.error(`Failed to upload file ${id} - ${title}`)
                     console.error(err);
+                    if (err instanceof DeadlineExceededError) throw err;
                     return;
                 })
                 .then(() =>
@@ -163,10 +166,12 @@ async function updateFiles(guFiles: FileJSON[], prod: boolean, config: Config, a
     );
 }
 
+const sheetsTimeoutMs = 20_000;
+
 export async function publishFile(fileId: string, config: Config, auth: JWT): Promise<unknown> {
     const guFile = await getGuFile(fileId)
     if (notEmpty(guFile)) {
-        const updatedJson = await updateFiles([guFile], true, config, auth)
+        const updatedJson = await updateFiles([guFile], true, config, auth, createDeadline(sheetsTimeoutMs))
         return await saveGuFiles(updatedJson);
     } else {
         throw `File ${fileId} not found in cache`
@@ -179,7 +184,7 @@ export async function updateChanged(config: Config, auth: JWT): Promise<unknown>
     const changes = await drive.fetchRecentChanges(1 + Number(state.lastChangeId), auth);
     console.log('currentLastChangeId (from Google)', changes.largestChangeId)
     const guFiles = await enrichDriveFilesFromCache(changes.items);
-    const updatedJson = await updateFiles(guFiles, false, config, auth);
+    const updatedJson = await updateFiles(guFiles, false, config, auth, noopDeadline);
     await saveGuFiles(updatedJson);
     await saveStateDb(changes.largestChangeId);
     return 

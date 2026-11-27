@@ -56,8 +56,8 @@ export function fetchFilePermissions(fileId: string, auth: JWT) {
     return drive.permissions.list({ auth, fileId })
 }
 
-export function getSpreadsheet(spreadsheetId: string, auth: JWT) {
-    return sheets.spreadsheets.get({ auth, spreadsheetId })
+export function getSpreadsheet(spreadsheetId: string, auth: JWT, signal: AbortSignal) {
+    return sheets.spreadsheets.get({ auth, spreadsheetId }, { signal })
 }
 
 export function getDoc(fileId: string, auth: JWT): GaxiosPromise<string>  {
@@ -68,6 +68,9 @@ export function getDoc(fileId: string, auth: JWT): GaxiosPromise<string>  {
     }) as GaxiosPromise<string>
 }
 
-export async function getSheet(spreadsheetId: string, sheetName: string, auth: JWT): GaxiosPromise<sheets_v4.Schema$ValueRange> {
-    return await sheets.spreadsheets.values.get({ auth, spreadsheetId, range: `${sheetName}!A:ZZ`, valueRenderOption: 'FORMATTED_VALUE' })
+export async function getSheet(spreadsheetId: string, sheetName: string, auth: JWT, signal: AbortSignal): GaxiosPromise<sheets_v4.Schema$ValueRange> {
+    return await sheets.spreadsheets.values.get(
+        { auth, spreadsheetId, range: `${sheetName}!A:ZZ`, valueRenderOption: 'FORMATTED_VALUE' },
+        { signal },
+    )
 }
