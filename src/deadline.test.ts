@@ -15,7 +15,7 @@ function mockClock(tracker: typeof mock) {
     };
 }
 
-test('returns completed work and clears its timer', async t => {
+void test('returns completed work and clears its timer', async t => {
     const advance = mockClock(t.mock);
     const signal = await createDeadline(20).run('complete', async signal => signal);
 
@@ -23,7 +23,7 @@ test('returns completed work and clears its timer', async t => {
     assert.equal(signal.aborted, false);
 });
 
-test('preserves work errors and clears the timer on failure', async t => {
+void test('preserves work errors and clears the timer on failure', async t => {
     const advance = mockClock(t.mock);
     const failure = new Error('upstream failure');
     let workSignal: AbortSignal | undefined;
@@ -37,7 +37,7 @@ test('preserves work errors and clears the timer on failure', async t => {
     assert.equal(workSignal?.aborted, false);
 });
 
-test('shares one budget across steps and aborts a stalled step with its label', async t => {
+void test('shares one budget across steps and aborts a stalled step with its label', async t => {
     const advance = mockClock(t.mock);
     const deadline = createDeadline(20);
     await deadline.run('metadata', async () => { advance(15); });
@@ -59,7 +59,7 @@ test('shares one budget across steps and aborts a stalled step with its label', 
     assert.equal(workSignal.aborted, true);
 });
 
-test('does not start work once the shared deadline has expired', async t => {
+void test('does not start work once the shared deadline has expired', async t => {
     const advance = mockClock(t.mock);
     const deadline = createDeadline(20);
     advance(20);
@@ -69,7 +69,7 @@ test('does not start work once the shared deadline has expired', async t => {
     assert.equal(work.mock.callCount(), 0);
 });
 
-test('the no-op deadline runs work without scheduling a timeout', async t => {
+void test('the no-op deadline runs work without scheduling a timeout', async t => {
     const schedule = t.mock.method(globalThis, 'setTimeout');
     const signal = await noopDeadline.run('unbounded', async signal => signal);
     assert.equal(signal.aborted, false);
