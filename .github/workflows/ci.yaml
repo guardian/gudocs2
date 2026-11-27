@@ -16,6 +16,7 @@ jobs:
           cache: 'yarn'
       - run: |
           yarn install --frozen-lockfile
+          yarn test
           yarn build
           yarn package
       - name: CDK synth

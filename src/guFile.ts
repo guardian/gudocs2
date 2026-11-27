@@ -3,6 +3,7 @@ import archieml from 'archieml'
 import type { JWT } from 'google-auth-library'
 import type { drive_v2, sheets_v4 } from 'googleapis';
 import { s3AwsConfig, standardAwsConfig } from './awsIntegration';
+import type { Deadline } from './deadline';
 import * as drive from './drive'
 import { delay, notEmpty } from './util'
 
@@ -77,10 +78,10 @@ async function uploadToS3(body: object, prod: boolean, s3bucket: string, title: 
     }
 }
 
-export async function updateFileInS3(publish: boolean, config: Config, auth: JWT, file: FileJSON): Promise<void> {
+export async function updateFileInS3(publish: boolean, config: Config, auth: JWT, file: FileJSON, deadline: Deadline): Promise<void> {
     console.log(`Fetching ${file.metaData.id} ${file.metaData.title} (${file.metaData.mimeType})`);
 
-    const body = await fetchFileJSON(file, auth);
+    const body = await fetchFileJSON(file, auth, deadline);
 
     console.log(`Uploading ${file.metaData.id} ${file.metaData.title} (${file.metaData.mimeType}) to S3 [test]`);
     await uploadToS3(body, false, config.s3bucket, file.metaData.title, file.metaData.id, config.testFolder);
@@ -95,11 +96,11 @@ function cleanRaw(title: string, s: string) {
     else {return s.replace(/http:\/\//g, 'https://');}
 }
 
-async function fetchFileJSON(file: FileJSON, auth: JWT): Promise<object> {
+async function fetchFileJSON(file: FileJSON, auth: JWT, deadline: Deadline): Promise<object> {
     if (file.metaData.mimeType === 'application/vnd.google-apps.document') {
         return fetcDocJSON(file.metaData.id, file.metaData.title, auth);
     } else if (file.metaData.mimeType === 'application/vnd.google-apps.spreadsheet') {
-        return fetchSpreadsheetJSON(file, auth);
+        return fetchSpreadsheetJSON(file, auth, deadline);
     } else {
         throw `mimeType ${file.metaData.mimeType} not recognized`
     }
@@ -110,11 +111,12 @@ async function fetcDocJSON(id: string, title: string, auth: JWT): Promise<object
     return archieml.load(cleanRaw(title, doc.data));
 }
 
-async function fetchSheetJSON(sheet: sheets_v4.Schema$Sheet, exportLinks: drive_v2.Schema$File['exportLinks'], id: string, title: string, auth: JWT) {
+async function fetchSheetJSON(sheet: sheets_v4.Schema$Sheet, exportLinks: drive_v2.Schema$File['exportLinks'], id: string, auth: JWT, signal: AbortSignal) {
+    signal.throwIfAborted();
     if (!notEmpty(exportLinks)) {
         throw new Error("Missing export links")
     }
-    const response = await drive.getSheet(id, sheet.properties?.title ?? "", auth)
+    const response = await drive.getSheet(id, sheet.properties?.title ?? "", auth, signal)
     if (sheet.properties?.title !== 'tableDataSheet') {
         const headings = response.data.values?.[0] ?? [];
         return {[sheet.properties?.title ?? ""]: response.data.values?.slice(1).map((row) => {
@@ -127,13 +129,21 @@ async function fetchSheetJSON(sheet: sheets_v4.Schema$Sheet, exportLinks: drive_
 
 const requestSpacing = 200;
 
-async function fetchSpreadsheetJSON(file: FileJSON, auth: JWT): Promise<{'sheets': Record<string, Array<Record<string, string>> | string[][]>}> {
-    const spreadsheet = await drive.getSpreadsheet(file.metaData.id, auth);
-    const delays = spreadsheet.data.sheets?.map((sheet, n) => {
-        return delay((n + 1) * requestSpacing, () => fetchSheetJSON(sheet, file.metaData.exportLinks, file.metaData.id, file.metaData.title, auth));
-    }) ?? [];
+async function fetchSpreadsheetJSON(file: FileJSON, auth: JWT, deadline: Deadline): Promise<{'sheets': Record<string, Array<Record<string, string>> | string[][]>}> {
+    const { id, exportLinks } = file.metaData;
+    const spreadsheet = await deadline.run('sheets.metadata', signal => drive.getSpreadsheet(id, auth, signal));
+
+    const cancelPending: Array<() => void> = [];
+    const fetchValues = (signal: AbortSignal) => {
+        const reads = spreadsheet.data.sheets?.map((sheet, n) => {
+            const read = delay((n + 1) * requestSpacing, () => fetchSheetJSON(sheet, exportLinks, id, auth, signal));
+            cancelPending.push(read.cancel);
+            return read.promise;
+        }) ?? [];
+        return Promise.all(reads);
+    };
     try {
-        const sheetJSONs = await Promise.all(delays.map(d => d.promise));
+        const sheetJSONs = await deadline.run('sheets.values', fetchValues);
         file.properties = {
             isTable: sheetJSONs.findIndex(sheetJSON => sheetJSON['tableDataSheet'] !== undefined) > -1
         }
@@ -141,7 +151,7 @@ async function fetchSpreadsheetJSON(file: FileJSON, auth: JWT): Promise<{'sheets
             sheets: sheetJSONs.reduce((a, b) => ({ ...a, ...b, }), {})
         };
     } catch (err) {
-        delays.forEach(d => d.cancel());
+        cancelPending.forEach(cancel => cancel());
         throw err;
     }
 }
